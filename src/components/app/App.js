@@ -57,22 +57,6 @@ class App extends React.Component {
     })
   }
 
-  editAlbum (e, album) {
-    e.preventDefault()
-    // console.log('album', album)
-    // console.log(e.target.childNodes)
-    // console.log(e.target.childNodes[0].childNodes[3].value)
-    // console.log(e.target.childNodes[1].childNodes[3].value)
-    let updatedAlbum = album
-    updatedAlbum.title = e.target.childNodes[0].childNodes[3].value
-    updatedAlbum.description = e.target.childNodes[1].childNodes[3].value
-    updatedAlbum.lastUpdate = Date.now()
-
-    firebase.database().ref('/albums/' + album.id).set(updatedAlbum).then(() => {
-      window.location = '/'
-    })
-  }
-
   render () {
     const renderMergedProps = (component, ...rest) => {
       const finalProps = Object.assign({}, ...rest)
@@ -112,7 +96,7 @@ class App extends React.Component {
 
           <Route exact path={'/albums_new'} component={AlbumsNew}/>
 
-          <PropsRoute exact path={'/albums/:id/edit'} component={AlbumEdit} albums={this.state.albums} editAlbum={(e, album) => this.editAlbum(e,album)}/>
+          <Route exact path={'/albums/:id/edit'} component={AlbumEdit}/>
 
           <Route exact path={'/albums/:id/settings'} component={AlbumSettings}/>
 

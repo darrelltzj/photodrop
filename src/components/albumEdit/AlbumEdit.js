@@ -2,7 +2,7 @@ import React from 'react'
 
 import {
   Redirect
-} from 'react-router'
+} from 'react-router-dom'
 
 import * as firebase from 'firebase'
 
@@ -13,12 +13,23 @@ class AlbumEdit extends React.Component {
     super(props)
     this.state = ({
       redirectSuccess: false,
-      // redirectToUrl: '/',
-      album: props.albums.filter(album => {
-        return album.id == props.match.params.id
-      })[0] || ''
+      redirectToUrl: '/',
+      album: ''
     })
   }
+
+  componentDidMount() {
+    firebase.database().ref('/albums/' + this.props.match.params.id).once('value').then(snapshot => {
+      let album = snapshot.val()
+      this.setState({
+        album: album
+      })
+    })
+  }
+
+  // componentDidUpdate() {
+  //   console.log('current state', this.state)
+  // }
 
   handleChange (e, type) {
     e.preventDefault()
@@ -33,60 +44,50 @@ class AlbumEdit extends React.Component {
     })
   }
 
-  componentDidUpdate() {
-    console.log('current state', this.state)
-  }
-
   editAlbum (e) {
     e.preventDefault()
 
     let updatedAlbum = this.state.album
 
-    updatedAlbum.title = e.target.querySelector(`#edit-album-title-${this.props.match.params.id}`).value,
+    updatedAlbum.title = e.target.querySelector(`#edit-album-title-${this.props.match.params.id}`).value
 
-    updatedAlbum.description = e.target.querySelector(`#edit-album-description-${this.props.match.params.id}`).value,
+    updatedAlbum.description = e.target.querySelector(`#edit-album-description-${this.props.match.params.id}`).value
+
     updatedAlbum.lastUpdate = Date.now()
 
     firebase.database().ref('/albums/' + this.props.match.params.id).set(updatedAlbum).then((data) => {
-      console.log('front', data)
+      this.setState({
+        redirectToUrl: `/albums/${this.props.match.params.id}`,
+        redirectSuccess: true
+      })
     })
-
-    console.log(this.state)
-
-    this.setState({
-      redirectSuccess: true
-    })
-
-    console.log(this.state)
   }
 
   deleteAlbum (e) {
-    e.preventDefault()
-    let updates = {}
-    updates['/albums/' + this.props.match.params.id] = null
-    updates['/pictures/' + this.props.match.params.id] = null
-    firebase.database().ref().update(updates).then(() => {
-      this.setState({
-        redirectSuccess: true
-        // redirectToUrl: '/'
+    if (confirm('Deleting this album will delete the pictures along with it. Are you sure?')) {
+      e.preventDefault()
+      let updates = {}
+      updates['/albums/' + this.props.match.params.id] = null
+      updates['/pictures/' + this.props.match.params.id] = null
+      firebase.database().ref().update(updates).then(() => {
+        this.setState({
+          redirectToUrl: '/',
+          redirectSuccess: true
+        })
+      }).catch((err) => {
+        alert(err)
       })
-    }).catch((err) => {
-      alert(err)
-    })
+    } else {
+      return false
+    }
   }
 
   render() {
-    console.log('render',this.props)
-    // console.log(this.state.redirectToUrl)
     return (
       <div>
-
         <Navbar />
-
         <div>
-
-          {/* <form onSubmit={(e) => this.editAlbum(e)}> */}
-          <form onSubmit={(e, album) => this.props.editAlbum (e, this.state.album)}>
+          <form onSubmit={(e) => this.editAlbum(e)}>
 
             <label>
               Title
@@ -97,6 +98,7 @@ class AlbumEdit extends React.Component {
               Description
               <input type='text' id={`edit-album-description-${this.props.match.params.id}`} name="description" placeholder='Description' value={this.state.album.description} onChange={(e) => this.handleChange(e, 'description')}/>
             </label>
+
             <button>Update</button>
           </form>
 
@@ -107,9 +109,8 @@ class AlbumEdit extends React.Component {
         </div>
 
         {this.state.redirectSuccess &&
-          <Redirect to='/'/>
+          <Redirect to={this.state.redirectToUrl}/>
         }
-
       </div>
     )
   }
