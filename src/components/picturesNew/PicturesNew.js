@@ -59,8 +59,8 @@ class PicturesNew extends React.Component {
           <span>Post a Message</span>
         </div>
 
-        <div onSubmit={(e) => this.uploadImage(e)}>
-          <form>
+        <div>
+          <form onSubmit={(e) => this.uploadImage(e)}>
             {/* <input type='file'/> */}
             <input type='file' id='imageUpload' accept='image/*' capture='camera' />
             <input type='text' placeholder='Tags' />
