@@ -64,7 +64,7 @@ class AlbumEdit extends React.Component {
   }
 
   deleteAlbum (e) {
-    if (confirm('Deleting this album will delete the pictures along with it. Are you sure?')) {
+    if (confirm('Deleting this album will delete the pictures along with it. OK to proceed?')) {
       e.preventDefault()
       let updates = {}
       updates['/albums/' + this.props.match.params.id] = null

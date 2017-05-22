@@ -4,6 +4,8 @@ import {
   Link
 } from 'react-router-dom'
 
+import * as firebase from 'firebase'
+
 import AlbumSearch from '../albumSearch/AlbumSearch'
 import AlbumItem from '../albumItem/AlbumItem'
 
@@ -13,12 +15,47 @@ class Albums extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      albums: props.albums,
-      pictures: props.pictures
+      albums: '',
+      pictures: ''
     }
   }
 
+  componentDidMount() {
+    firebase.database().ref('/albums').on('value', snapshot => {
+      let albums = []
+      snapshot.forEach(album => {
+        albums.push(album.val())
+      })
+      this.setState({
+        albums: albums
+      })
+    })
+
+    firebase.database().ref('/pictures').on('value', snapshot => {
+      let pictures = []
+      snapshot.forEach(picture => {
+        pictures.push(picture.val())
+      })
+      this.setState({
+        pictures: pictures
+      })
+    })
+  }
+
   render() {
+    let albumItems = []
+    if (this.state.albums.length > 0) {
+      albumItems = this.state.albums.map((album, index) => {
+        return (
+          <div key={album.id}>
+              <Link to={`/albums/${album.id}`}>
+                {album.title}
+              </Link>
+          </div>
+        )
+      })
+    }
+
     return (
       <div>
         <Navbar />
@@ -33,7 +70,9 @@ class Albums extends React.Component {
           </button>
         </Link>
 
-        <AlbumItem albums={this.state.albums} pictures={this.state.pictures}/>
+        {albumItems}
+
+        {/* <AlbumItem albums={this.state.albums} pictures={this.state.pictures}/> */}
 
       </div>
     )

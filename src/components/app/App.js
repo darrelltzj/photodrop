@@ -9,6 +9,8 @@ import {
 
 import * as firebase from 'firebase'
 
+import Signup from '../auth/Signup'
+import Login from '../auth/Login'
 import Albums from '../albums/Albums'
 import AlbumsNew from '../albumsNew/AlbumsNew'
 import AlbumEdit from '../albumEdit/AlbumEdit'
@@ -93,6 +95,10 @@ class App extends React.Component {
         <Switch>
 
           <Route exact path={'/'} component={() => <Albums albums={this.state.albums} pictures={this.state.pictures} />} />
+
+          <Route exact path={'/signup'} component={Signup}/>
+
+          <Route exact path={'/login'} component={Login}/>
 
           <Route exact path={'/albums_new'} component={AlbumsNew}/>
 
