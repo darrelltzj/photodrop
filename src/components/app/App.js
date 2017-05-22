@@ -7,12 +7,6 @@ import {
   Switch
 } from 'react-router-dom'
 
-import {
-  Redirect
-} from 'react-router'
-
-// var transitionTo = Router.transitionTo;
-
 import * as firebase from 'firebase'
 
 import Albums from '../albums/Albums'
@@ -69,18 +63,13 @@ class App extends React.Component {
     // console.log(e.target.childNodes)
     // console.log(e.target.childNodes[0].childNodes[3].value)
     // console.log(e.target.childNodes[1].childNodes[3].value)
-    let that = this
     let updatedAlbum = album
     updatedAlbum.title = e.target.childNodes[0].childNodes[3].value
     updatedAlbum.description = e.target.childNodes[1].childNodes[3].value
     updatedAlbum.lastUpdate = Date.now()
 
     firebase.database().ref('/albums/' + album.id).set(updatedAlbum).then(() => {
-      console.log('updated')
       window.location = '/'
-      // return (
-        // <Redirect to='/albums_new' />
-      // )
     })
   }
 

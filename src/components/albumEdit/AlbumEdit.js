@@ -41,7 +41,9 @@ class AlbumEdit extends React.Component {
     e.preventDefault()
 
     let updatedAlbum = this.state.album
+
     updatedAlbum.title = e.target.querySelector(`#edit-album-title-${this.props.match.params.id}`).value,
+
     updatedAlbum.description = e.target.querySelector(`#edit-album-description-${this.props.match.params.id}`).value,
     updatedAlbum.lastUpdate = Date.now()
 
