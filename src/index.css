@@ -7,10 +7,32 @@ body {
 .nav-parent {
   display: flex;
   align-items:center;
+  height: 60px;
 }
 
-.test {
+.nav-menu {
+  margin-left: 16.7%;
+}
+
+.brand-title {
+  position: absolute;
   text-align: center;
-  margin-left:auto;
-  margin-right:auto;
+  width: 60%;
+  margin-left: 20%;
+  margin-right: 20%;
+}
+
+.albums-display {
+  margin-left: 16.7%;
+  margin-right: 16.7%;
+}
+
+@media only screen and (max-width: 768px) {
+  .nav-menu {
+    margin-left: auto;
+  }
+  .albums-display {
+    margin-left: auto;
+    margin-right: auto;
+  }
 }

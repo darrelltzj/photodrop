@@ -31,6 +31,7 @@ class AlbumsNew extends React.Component {
       requests: [],
       live: false,
       pictures: [],
+      current: '',
       default: ''
     }
     let updates = {}

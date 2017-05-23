@@ -6,8 +6,17 @@ import {
 
 import * as firebase from 'firebase'
 
+import {
+  Form,
+  FormGroup,
+  Col,
+  FormControl,
+  ControlLabel,
+  Button,
+  PageHeader
+ } from 'react-bootstrap'
+
 import Navbar from '../navbar/Navbar'
-import NavDropdownExample from '../navbar/NavDropdownExample'
 
 class Signup extends React.Component {
 
@@ -59,40 +68,68 @@ class Signup extends React.Component {
   render() {
     return (
       <div>
-        <Navbar />
-        <NavDropdownExample />
+        <Col sm={6}>
+          <PageHeader>
+            <strong>Photodrop</strong>
+            {' '}
+            <small>Photo Sharing Presentations</small>
+          </PageHeader>
 
-        <form onSubmit={(e) => this.signup(e)}>
+          <Form horizontal onSubmit={(e) => this.signup(e)}>
 
-          <div className="input-group">
-            <label>
-              Name
-              <input type='text' className="form-control" id='signup-name' name="name" placeholder='Name' required />
-            </label>
-          </div>
+            <FormGroup>
+              <Col componentClass={ControlLabel} sm={2}>
+                Name
+              </Col>
+              <Col sm={10}>
+                <FormControl type='text' className="form-control" id='signup-name' name="name" placeholder='Name' required />
+              </Col>
+            </FormGroup>
 
-          <label>
-            Email
-            <input type='email' id='signup-email' name="email" placeholder='Email' required />
-          </label>
+            <FormGroup>
+              <Col componentClass={ControlLabel} sm={2}>
+                Email
+              </Col>
+              <Col sm={10}>
+                <FormControl type='email' id='signup-email' name="email" placeholder='Email' required />
+              </Col>
+            </FormGroup>
 
-          <label>
-            Password
-            <input type='password' id='signup-password' name="password" placeholder='Password' required />
-          </label>
+            <FormGroup>
+              <Col componentClass={ControlLabel} sm={2}>
+                Password
+              </Col>
+              <Col sm={10}>
+                <FormControl type='password' id='signup-password' name="password" placeholder='Password' required />
+              </Col>
+            </FormGroup>
 
-          <label>
-            Password Confirmation
-            <input type='password' id='signup-password-confirmation' name="password-confirmation" placeholder='Password Confirmation' required />
-          </label>
+            <FormGroup>
+              <Col componentClass={ControlLabel} sm={2}>
+                Password Confirmation
+              </Col>
+              <Col sm={10}>
+                <FormControl type='password' id='signup-password-confirmation' name="password-confirmation" placeholder='Password Confirmation' required />
+              </Col>
+            </FormGroup>
 
-          <button>Sign Up</button>
-        </form>
+            <FormGroup>
+              <Col smOffset={2} sm={10}>
+                <Button type="submit">
+                  Sign Up
+                </Button>
+              </Col>
+            </FormGroup>
 
-        <Link to='/login'>
-          Already have an Account? Login here.
-        </Link>
+          </Form>
 
+          <Col smOffset={2} sm={10}>
+            Already have an Account?{' '}
+            <Link to='/login'>
+              Login here.
+            </Link>
+          </Col>
+        </Col>
       </div>
     )
   }

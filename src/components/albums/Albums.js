@@ -6,7 +6,18 @@ import {
 
 import * as firebase from 'firebase'
 
-import AlbumSearch from '../albumSearch/AlbumSearch'
+import {
+  Form,
+  FormGroup,
+  Col,
+  FormControl,
+  ControlLabel,
+  Button,
+  Tabs,
+  Tab,
+  PageHeader
+ } from 'react-bootstrap'
+
 import AlbumItem from '../albumItem/AlbumItem'
 
 import Navbar from '../navbar/Navbar'
@@ -16,7 +27,8 @@ class Albums extends React.Component {
     super(props);
     this.state = {
       albums: '',
-      pictures: ''
+      pictures: '',
+      key: 'participating'
     }
   }
 
@@ -42,16 +54,25 @@ class Albums extends React.Component {
     })
   }
 
+  handleSelect(key) {
+    // alert('selected ' + key)
+    this.setState({
+      key: key
+    })
+  }
+
   render() {
     let albumItems = []
     if (this.state.albums.length > 0) {
       albumItems = this.state.albums.map((album, index) => {
         return (
-          <div key={album.id}>
+              <div key={album.id}>
               <Link to={`/albums/${album.id}`}>
-                {album.title}
+                <PageHeader>
+                  <small>{album.title}</small>
+                </PageHeader>
               </Link>
-          </div>
+              </div>
         )
       })
     }
@@ -60,19 +81,50 @@ class Albums extends React.Component {
       <div>
         <Navbar />
 
-        <h1>Albums</h1>
+        <Col sm={8} className="albums-display">
 
-        <AlbumSearch handleSearch={(e) => this.albumSearch(e)} />
+        <PageHeader>
+          <strong>Albums</strong>
+        </PageHeader>
 
+        {/* <p>{this.state.key}</p> */}
+
+        <Form horizontal onChange={(e) => this.search(e)}>
+          <FormGroup bsSize="large">
+            <Col sm={12}>
+              <FormControl type='text' id='search-albums' name="search-albums" placeholder='Search Albums' />
+            </Col>
+          </FormGroup>
+        </Form>
+
+        <Col sm={4} md={2}>
         <Link to={`/albums_new`}>
-          <button>
-            New Album
-          </button>
+          <Button bsStyle="primary">
+            Create New Album
+          </Button>
         </Link>
+        </Col>
 
-        {albumItems}
+        <Tabs defaultActiveKey={this.state.key} onSelect={(e) => this.handleSelect(e)}>
+
+          <Tab eventKey={'participating'} title="Participating">
+            <div>
+              {albumItems}
+            </div>
+          </Tab>
+
+          <Tab eventKey={'organising'} title="Organising">
+
+          </Tab>
+
+          <Tab eventKey={'others'} title="Others">
+
+          </Tab>
+
+        </Tabs>
 
         {/* <AlbumItem albums={this.state.albums} pictures={this.state.pictures}/> */}
+        </Col>
 
       </div>
     )

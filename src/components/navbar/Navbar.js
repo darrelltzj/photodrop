@@ -1,51 +1,54 @@
 import React from 'react'
 
 import {
-  NavLink
-} from 'react-router-dom'
+  Nav,
+  NavDropdown,
+  MenuItem,
+  NavItem,
+  Glyphicon,
+  Col
+ } from 'react-bootstrap'
 
 import * as firebase from 'firebase'
-import {
-  NavBrand,
-  NavMenu
-} from 'react-bootstrap'
 
 class Navbar extends React.Component {
-  logout (e) {
-    firebase.auth().signOut()
-    window.location = '/login'
+  handleSelect(eventKey) {
+    event.preventDefault()
+    // alert(`selected ${eventKey}`)
+    if (eventKey == '/logout') {
+      firebase.auth().signOut()
+      window.location = '/login'
+    } else {
+      window.location = eventKey
+    }
   }
 
   render() {
     return (
-      <div>
-        <li>
-          <NavLink to='/'>Home</NavLink>
-        </li>
-        <li>
-          <NavLink to='/settings'>Settings</NavLink>
-        </li>
-        <li>
-          <NavLink to='/login'>Login</NavLink>
-        </li>
-        <li>
-          <NavLink to='/signup'>Signup</NavLink>
-        </li>
-        <li>
-          <span id='logout-link' onClick={(e) => this.logout(e)}>Logout</span>
-        </li>
+      <Nav bsStyle="tabs" onSelect={this.handleSelect} className="nav-parent">
 
-        <ul className="nav nav-tabs">
-          <li role="presentation" className="dropdown">
-            <a className="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-              Menu <span className="caret"></span>
-            </a>
-            <ul className="dropdown-menu">
-              <li>Test</li>
-            </ul>
-          </li>
-        </ul>
-      </div>
+          <NavDropdown title=
+            {
+              <span>
+                <Glyphicon glyph="align-justify" />
+                {' '}Menu
+              </span>
+            } id="nav-dropdown" className="nav-menu">
+
+            <MenuItem eventKey="/">Home</MenuItem>
+            <MenuItem eventKey="/account">Account</MenuItem>
+
+            <MenuItem divider />
+
+            <MenuItem eventKey="/logout">Logout</MenuItem>
+
+          </NavDropdown>
+
+          <div className="brand-title">
+            Photodrop
+          </div>
+
+      </Nav>
     )
   }
 }
