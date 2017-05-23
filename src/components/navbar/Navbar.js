@@ -5,6 +5,10 @@ import {
 } from 'react-router-dom'
 
 import * as firebase from 'firebase'
+import {
+  NavBrand,
+  NavMenu
+} from 'react-bootstrap'
 
 class Navbar extends React.Component {
   logout (e) {
@@ -15,21 +19,32 @@ class Navbar extends React.Component {
   render() {
     return (
       <div>
-        <div>
+        <li>
           <NavLink to='/'>Home</NavLink>
-        </div>
-        <div>
+        </li>
+        <li>
           <NavLink to='/settings'>Settings</NavLink>
-        </div>
-        <div>
+        </li>
+        <li>
           <NavLink to='/login'>Login</NavLink>
-        </div>
-        <div>
+        </li>
+        <li>
           <NavLink to='/signup'>Signup</NavLink>
-        </div>
-        <div>
+        </li>
+        <li>
           <span id='logout-link' onClick={(e) => this.logout(e)}>Logout</span>
-        </div>
+        </li>
+
+        <ul className="nav nav-tabs">
+          <li role="presentation" className="dropdown">
+            <a className="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+              Menu <span className="caret"></span>
+            </a>
+            <ul className="dropdown-menu">
+              <li>Test</li>
+            </ul>
+          </li>
+        </ul>
       </div>
     )
   }

@@ -7,6 +7,7 @@ import {
 import * as firebase from 'firebase'
 
 import Navbar from '../navbar/Navbar'
+import NavDropdownExample from '../navbar/NavDropdownExample'
 
 class Signup extends React.Component {
 
@@ -47,7 +48,7 @@ class Signup extends React.Component {
         .catch((err) => {
           alert(err.message)
         })
-        
+
       })
       .catch((err) => {
         alert(err.message)
@@ -59,13 +60,16 @@ class Signup extends React.Component {
     return (
       <div>
         <Navbar />
+        <NavDropdownExample />
 
         <form onSubmit={(e) => this.signup(e)}>
 
-          <label>
-            Name
-            <input type='text' id='signup-name' name="name" placeholder='Name' required />
-          </label>
+          <div className="input-group">
+            <label>
+              Name
+              <input type='text' className="form-control" id='signup-name' name="name" placeholder='Name' required />
+            </label>
+          </div>
 
           <label>
             Email
