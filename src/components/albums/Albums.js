@@ -15,24 +15,25 @@ import {
   Button,
   Tabs,
   Tab,
-  PageHeader
+  PageHeader,
+  Modal
  } from 'react-bootstrap'
-
-import AlbumItem from '../albumItem/AlbumItem'
 
 import Navbar from '../navbar/Navbar'
 
 class Albums extends React.Component {
-  constructor(props) {
-    super(props);
+  constructor (props) {
+    super(props)
     this.state = {
-      albums: '',
-      pictures: '',
-      key: 'participating'
+      albums: [],
+      pictures: [],
+      user: '',
+      key: 'participating',
+      showModal: false
     }
   }
 
-  componentDidMount() {
+  componentDidMount () {
     firebase.database().ref('/albums').on('value', snapshot => {
       let albums = []
       snapshot.forEach(album => {
@@ -52,27 +53,97 @@ class Albums extends React.Component {
         pictures: pictures
       })
     })
+
+    if (firebase.auth().currentUser) {
+      firebase.database().ref('/users/' + firebase.auth().currentUser.uid).on('value', snapshot => {
+        console.log('reading', snapshot.val())
+        // let user = ''
+        // snapshot.forEach(user => {
+        //   user.push(user.val())
+        // })
+        this.setState({
+          user: snapshot.val()
+        })
+      })
+    }
   }
 
-  handleSelect(key) {
+  handleAlbumSelect (key) {
     // alert('selected ' + key)
     this.setState({
       key: key
     })
   }
 
-  render() {
+  close () {
+    this.setState({ showModal: false })
+  }
+
+  open () {
+    this.setState({ showModal: true })
+  }
+
+  newAlbum(e) {
+    e.preventDefault()
+
+    let newAlbumKey = firebase.database().ref().child('albums').push().key
+    let newAlbum = {
+      id: newAlbumKey,
+      title: e.target.querySelector('#new-album-title').value,
+      description: e.target.querySelector('#new-album-description').value,
+      lastUpdate: Date.now(),
+      owner: firebase.auth().currentUser.uid,
+      organisers: [{'uid': firebase.auth().currentUser.uid}],
+      participants: [{'uid': firebase.auth().currentUser.uid}],
+      requests: [],
+      live: false,
+      pictures: [],
+      current: 0,
+      default: 0
+    }
+
+    let userOrganising = []
+    let userParticipating = []
+
+    if (firebase.database().ref('/users/' + firebase.auth().currentUser.uid + '/organising')) {
+      userOrganising = firebase.database().ref('/users/' + firebase.auth().currentUser.uid + '/organising').val()
+    }
+    if (firebase.database().ref('/users/' + firebase.auth().currentUser.uid + '/participating')) {
+      userParticipating = firebase.database().ref('/users/' + firebase.auth().currentUser.uid + '/participating').val()
+    }
+
+    console.log('TEST', userOrganising, userParticipating)
+
+    let updates = {}
+    updates['/albums/' + newAlbumKey] = newAlbum
+    updates['/users/' + firebase.auth().currentUser.uid + '/organising/'] = userOrganising.concat([{album_id: firebase.auth().currentUser.uid}])
+    updates['/users/' + firebase.auth().currentUser.uid + '/participating/'] = userParticipating.concat([{album_id: firebase.auth().currentUser.uid}])
+
+    firebase.database().ref().update(updates).then(() => {
+      window.location = '/albums/' + newAlbumKey
+    }).catch((err) => {
+      alert(err)
+    })
+  }
+
+  render () {
+    if(firebase.auth().currentUser) {
+      console.log(firebase.auth().currentUser.uid)
+    }
+    console.log('TEST', this.state.user)
+
+    // FILTER THIS TO 3...
     let albumItems = []
     if (this.state.albums.length > 0) {
       albumItems = this.state.albums.map((album, index) => {
         return (
-              <div key={album.id}>
-              <Link to={`/albums/${album.id}`}>
-                <PageHeader>
-                  <small>{album.title}</small>
-                </PageHeader>
-              </Link>
-              </div>
+          <div key={album.id}>
+            <Link to={`/albums/${album.id}`}>
+              <PageHeader>
+                <small>{album.title}</small>
+              </PageHeader>
+            </Link>
+          </div>
         )
       })
     }
@@ -98,14 +169,12 @@ class Albums extends React.Component {
         </Form>
 
         <Col sm={4} md={2}>
-        <Link to={`/albums_new`}>
-          <Button bsStyle="primary">
+          <Button bsStyle="primary" onClick={(e) => this.open(e)}>
             Create New Album
           </Button>
-        </Link>
         </Col>
 
-        <Tabs defaultActiveKey={this.state.key} onSelect={(e) => this.handleSelect(e)}>
+        <Tabs defaultActiveKey={this.state.key} onSelect={(e) => this.handleAlbumSelect(e)}>
 
           <Tab eventKey={'participating'} title="Participating">
             <div>
@@ -125,6 +194,47 @@ class Albums extends React.Component {
 
         {/* <AlbumItem albums={this.state.albums} pictures={this.state.pictures}/> */}
         </Col>
+
+        <Modal show={this.state.showModal} onHide={this.close}>
+          <Modal.Header closeButton>
+            <Modal.Title>Create New Album</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <div>
+              <Form horizontal onSubmit={(e) => this.newAlbum(e)}>
+                <FormGroup>
+                  <Col componentClass={ControlLabel} sm={2}>
+                    Title
+                  </Col>
+                  <Col sm={10}>
+                    <FormControl type='text' id="new-album-title" name="title" placeholder='Title' required/>
+                  </Col>
+                </FormGroup>
+
+                <FormGroup>
+                  <Col componentClass={ControlLabel} sm={2}>
+                    Description
+                  </Col>
+                  <Col sm={10}>
+                    <FormControl componentClass='textarea' id="new-album-description" name="description" placeholder='Description' required/>
+                  </Col>
+                </FormGroup>
+
+                <FormGroup>
+                  <Col smOffset={10} sm={1}>
+                    <Button type="submit" bsStyle="primary">
+                      Submit
+                    </Button>
+                  </Col>
+                </FormGroup>
+
+              </Form>
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button onClick={(e) => this.close(e)}>Cancel</Button>
+          </Modal.Footer>
+        </Modal>
 
       </div>
     )
