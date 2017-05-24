@@ -16,7 +16,8 @@ import {
   Tabs,
   Tab,
   PageHeader,
-  Modal
+  Modal,
+  Image
  } from 'react-bootstrap'
 
 import Navbar from '../navbar/Navbar'
@@ -27,7 +28,7 @@ class Albums extends React.Component {
     this.state = {
       albums: [],
       pictures: [],
-      user: '',
+      // currentUserUid: firebase.auth().currentUser.uid || '',
       key: 'participating',
       showModal: false
     }
@@ -53,23 +54,9 @@ class Albums extends React.Component {
         pictures: pictures
       })
     })
-
-    if (firebase.auth().currentUser) {
-      firebase.database().ref('/users/' + firebase.auth().currentUser.uid).on('value', snapshot => {
-        console.log('reading', snapshot.val())
-        // let user = ''
-        // snapshot.forEach(user => {
-        //   user.push(user.val())
-        // })
-        this.setState({
-          user: snapshot.val()
-        })
-      })
-    }
   }
 
   handleAlbumSelect (key) {
-    // alert('selected ' + key)
     this.setState({
       key: key
     })
@@ -85,39 +72,32 @@ class Albums extends React.Component {
 
   newAlbum(e) {
     e.preventDefault()
+    let currentUserUid = firebase.auth().currentUser.uid
 
     let newAlbumKey = firebase.database().ref().child('albums').push().key
+    let newAlbumOrganisers = {}
+    newAlbumOrganisers[currentUserUid] = true
+    let newAlbumParticipants = {}
+    newAlbumParticipants[currentUserUid] = true
     let newAlbum = {
       id: newAlbumKey,
       title: e.target.querySelector('#new-album-title').value,
       description: e.target.querySelector('#new-album-description').value,
       lastUpdate: Date.now(),
-      owner: firebase.auth().currentUser.uid,
-      organisers: [{'uid': firebase.auth().currentUser.uid}],
-      participants: [{'uid': firebase.auth().currentUser.uid}],
-      requests: [],
+      owner: currentUserUid,
+      organisers: newAlbumOrganisers,
+      participants: newAlbumParticipants,
+      requests: {},
       live: false,
-      pictures: [],
-      current: 0,
-      default: 0
+      pictures: {},
+      current: {},
+      default: {}
     }
-
-    let userOrganising = []
-    let userParticipating = []
-
-    if (firebase.database().ref('/users/' + firebase.auth().currentUser.uid + '/organising')) {
-      userOrganising = firebase.database().ref('/users/' + firebase.auth().currentUser.uid + '/organising').val()
-    }
-    if (firebase.database().ref('/users/' + firebase.auth().currentUser.uid + '/participating')) {
-      userParticipating = firebase.database().ref('/users/' + firebase.auth().currentUser.uid + '/participating').val()
-    }
-
-    console.log('TEST', userOrganising, userParticipating)
 
     let updates = {}
     updates['/albums/' + newAlbumKey] = newAlbum
-    updates['/users/' + firebase.auth().currentUser.uid + '/organising/'] = userOrganising.concat([{album_id: firebase.auth().currentUser.uid}])
-    updates['/users/' + firebase.auth().currentUser.uid + '/participating/'] = userParticipating.concat([{album_id: firebase.auth().currentUser.uid}])
+    updates['/users/' + currentUserUid + '/organising/' + newAlbumKey] = true
+    updates['/users/' + currentUserUid + '/participating/' + newAlbumKey] = true
 
     firebase.database().ref().update(updates).then(() => {
       window.location = '/albums/' + newAlbumKey
@@ -127,15 +107,71 @@ class Albums extends React.Component {
   }
 
   render () {
-    if(firebase.auth().currentUser) {
-      console.log(firebase.auth().currentUser.uid)
-    }
-    console.log('TEST', this.state.user)
-
-    // FILTER THIS TO 3...
-    let albumItems = []
+    let albumsParticipating = []
     if (this.state.albums.length > 0) {
-      albumItems = this.state.albums.map((album, index) => {
+      albumsParticipating = this.state.albums.filter((album, index) => {
+        if (firebase.auth().currentUser.uid in album.participants) {
+          return true
+        }
+      }).map((album,index) => {
+        return (
+          <div key={album.id}>
+            <Link to={`/albums/${album.id}`}>
+              <PageHeader>
+                <small>{album.title}</small>
+              </PageHeader>
+            </Link>
+            <div className="album-content-container">
+              <div className="album-image-container">
+                <Image src="http://i.imgur.com/UBshxxy.png" responsive className="album-image"/>
+              </div>
+              <Form inline className="album-live-comment">
+                <FormGroup controlId="formInlineName">
+                  <FormControl type="text" placeholder="Add a live comment..." />
+                </FormGroup>
+                <FormGroup controlId="formInlineName">
+                  <Button type="submit" bsStyle="primary">
+                    Submit
+                  </Button>
+                </FormGroup>
+              </Form>
+            </div>
+
+          </div>
+        )
+      })
+    }
+
+    let albumsOrganising = []
+    if (this.state.albums.length > 0) {
+      albumsOrganising = this.state.albums.filter((album, index) => {
+        if (firebase.auth().currentUser.uid in album.organisers) {
+          return true
+        }
+      }).map((album,index) => {
+        return (
+          <div key={album.id}>
+            <Link to={`/albums/${album.id}`}>
+              <PageHeader>
+                <small>{album.title}</small>
+              </PageHeader>
+            </Link>
+          </div>
+        )
+      })
+    }
+
+    // NEED TO FILTER REQUESTS
+    // let albumsRequestd = []
+    let albumsOthers = []
+    if (this.state.albums.length > 0) {
+      albumsOthers = this.state.albums.filter((album, index) => {
+        if (firebase.auth().currentUser.uid in album.organisers || firebase.auth().currentUser.uid in album.participants) {
+          return false
+        } else {
+          return true
+        }
+      }).map((album,index) => {
         return (
           <div key={album.id}>
             <Link to={`/albums/${album.id}`}>
@@ -153,46 +189,45 @@ class Albums extends React.Component {
         <Navbar />
 
         <Col sm={8} className="albums-display">
+          <PageHeader>
+            <strong>Albums</strong>
+          </PageHeader>
 
-        <PageHeader>
-          <strong>Albums</strong>
-        </PageHeader>
+          <Form horizontal onChange={(e) => this.search(e)}>
+            <FormGroup bsSize="large">
+              <Col sm={12}>
+                <FormControl type='text' id='search-albums' name="search-albums" placeholder='Search Albums' />
+              </Col>
+            </FormGroup>
+          </Form>
 
-        {/* <p>{this.state.key}</p> */}
+          <Col sm={4} md={2}>
+            <Button bsStyle="primary" onClick={(e) => this.open(e)}>
+              Create New Album
+            </Button>
+          </Col>
 
-        <Form horizontal onChange={(e) => this.search(e)}>
-          <FormGroup bsSize="large">
-            <Col sm={12}>
-              <FormControl type='text' id='search-albums' name="search-albums" placeholder='Search Albums' />
-            </Col>
-          </FormGroup>
-        </Form>
+          <Tabs defaultActiveKey={this.state.key} onSelect={(e) => this.handleAlbumSelect(e)}>
 
-        <Col sm={4} md={2}>
-          <Button bsStyle="primary" onClick={(e) => this.open(e)}>
-            Create New Album
-          </Button>
-        </Col>
+            <Tab eventKey={'participating'} title="Participating">
+              <div className="albums-container">
+                {albumsParticipating}
+              </div>
+            </Tab>
 
-        <Tabs defaultActiveKey={this.state.key} onSelect={(e) => this.handleAlbumSelect(e)}>
+            <Tab eventKey={'organising'} title="Organising">
+              <div>
+                {albumsOrganising}
+              </div>
+            </Tab>
 
-          <Tab eventKey={'participating'} title="Participating">
-            <div>
-              {albumItems}
-            </div>
-          </Tab>
+            <Tab eventKey={'others'} title="Others">
+              <div>
+                {albumsOthers}
+              </div>
+            </Tab>
 
-          <Tab eventKey={'organising'} title="Organising">
-
-          </Tab>
-
-          <Tab eventKey={'others'} title="Others">
-
-          </Tab>
-
-        </Tabs>
-
-        {/* <AlbumItem albums={this.state.albums} pictures={this.state.pictures}/> */}
+          </Tabs>
         </Col>
 
         <Modal show={this.state.showModal} onHide={this.close}>
