@@ -116,27 +116,41 @@ class Albums extends React.Component {
       }).map((album,index) => {
         return (
           <div key={album.id}>
-            <Link to={`/albums/${album.id}`}>
-              <PageHeader>
-                <small>{album.title}</small>
-              </PageHeader>
-            </Link>
+
             <div className="album-content-container">
               <div className="album-image-container">
-                <Image src="http://i.imgur.com/UBshxxy.png" responsive className="album-image"/>
-              </div>
-              <Form inline className="album-live-comment">
-                <FormGroup controlId="formInlineName">
-                  <FormControl type="text" placeholder="Add a live comment..." />
-                </FormGroup>
-                <FormGroup controlId="formInlineName">
-                  <Button type="submit" bsStyle="primary">
-                    Submit
-                  </Button>
-                </FormGroup>
-              </Form>
-            </div>
 
+                  <h2 className="album-title">
+                    {album.title}
+                  </h2>
+
+                <Link to={`/albums/${album.id}`}>
+                  <Image src="http://i.imgur.com/UBshxxy.png" responsive className="album-image"/>
+                </Link>
+
+                <div className="album-live-comment-container">
+                  Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                  Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                </div>
+              </div>
+
+              <div className="album-live-comment-form-container">
+                <Form className="album-live-comment-form">
+                  <FormGroup>
+                    <Col sm={12}>
+                    <FormControl componentClass="textarea" placeholder="Add a live comment..." />
+                    </Col>
+                  </FormGroup>
+                  <FormGroup>
+                    <Col sm={1}>
+                    <Button type="submit" bsStyle="primary">
+                      Submit
+                    </Button>
+                    </Col>
+                  </FormGroup>
+                </Form>
+              </div>
+            </div>
           </div>
         )
       })

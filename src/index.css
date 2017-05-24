@@ -35,27 +35,46 @@ body {
 
 .album-content-container {
   width: 100%;
-  height: 34vw;
+  height: 32vw;
   /*background-color: grey;*/
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 .album-image-container{
-  height: 32vw;
+  height: 26vw;
+  position: relative;
   /*background-color: beige;*/
 }
 
-.album-image{
+.album-title, .album-live-comment-container {
+  position: absolute;
+  color: black;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.album-image {
   display:block;
-  /*margin:auto;*/
+  margin:auto;
   max-width: 100%;
   max-height: 100%;
 }
 
-.album-live-comment {
+.album-live-comment-container {
+  position: absolute;
   bottom: 0;
+  left: 2%;
+  width: 96%;
+  max-height: 100px;
+  overflow: scroll;
+}
+
+.album-live-comment-form-container {
+  bottom: 0;
+  overflow: scroll;
 }
 
 @media only screen and (max-width: 768px) {
@@ -65,5 +84,11 @@ body {
   .albums-display {
     margin-left: auto;
     margin-right: auto;
+  }
+  .album-content-container {
+    height: 380px;
+  }
+  .album-image-container{
+    height: 260px;
   }
 }
