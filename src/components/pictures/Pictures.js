@@ -19,13 +19,9 @@ import {
   Image
  } from 'react-bootstrap'
 
-import * as Masonry from 'react-masonry-component'
+import Masonry from 'react-masonry-component'
 
 import Navbar from '../navbar/Navbar'
-
-const masonryOptions = {
-    transitionDuration: 0
-}
 
 class Pictures extends React.Component {
   constructor(props) {
@@ -214,26 +210,52 @@ class Pictures extends React.Component {
     }
   }
 
+  deletePicture (e, pictureId) {
+    if (confirm('Deleting this picture is irriversible. OK to proceed?')) {
+      e.preventDefault()
+      console.log(this.state.pictures, pictureId)
+      let updates = {}
+      updates['/albums/' + this.props.match.params.id + '/pictures/' + pictureId] = null
+      updates['/pictures/' + this.props.match.params.id + '/' + pictureId] = null
+      firebase.database().ref().update(updates).then(() => {
+        console.log('Delete Successful')
+      }).catch((err) => {
+        alert(err)
+      })
+    } else {
+      return false
+    }
+  }
+
   render() {
     let pictureList = this.state.pictures.map((picture, index) => {
       return (
-        // <Col sm={4}>
-          <li key={picture.id} className="picture-container">
-            <img src={picture.url} className="album-image"/>
-          </li>
-        // {/* </Col> */}
+          <div key={picture.id} className="picture-container">
+            <Image src={picture.url} className="album-image" rounded/>
+            <div className="picture-image-cover-container">
+              <div className="picture-image-delete-container">
+                <Button onClick={(e) => this.deletePicture(e, picture.id)} bsStyle="link">
+                  Delete
+                </Button>
+              </div>
+            </div>
+          </div>
       )
     })
+
+    const masonryOptions = {
+        transitionDuration: 0.8
+    }
 
     return (
       <div>
         <Navbar />
         <Col sm={8} className="albums-display">
         <div>
-            <PageHeader>
-              <strong>{this.state.album.title}</strong>{' '}
-              <small>{this.state.album.description}</small>
-            </PageHeader>
+          <PageHeader>
+            <strong>{this.state.album.title}</strong>{' '}
+            <small>{this.state.album.description}</small>
+          </PageHeader>
         </div>
 
         <div>
@@ -264,18 +286,16 @@ class Pictures extends React.Component {
           </Button>
         </ButtonToolbar>
 
-        {/* <Masonry
-          className={'my-gallery-class'} // default ''
-          elementType={'ul'} // default 'div'
-          // options={masonryOptions} // default {}
-          disableImagesLoaded={false} // default false
-          updateOnEachImageLoad={false} // default false and works only if disableImagesLoaded is false
-            >
-          {pictureList}
-        </Masonry> */}
-
-        <div>
-          {pictureList}
+        <div className='picture-content-container'>
+          <Masonry
+            className={'masonry'}
+            elementType={'div'}
+            options={masonryOptions}
+            disableImagesLoaded={false}
+            updateOnEachImageLoad={false}
+              >
+            {pictureList}
+          </Masonry>
         </div>
 
         </Col>
@@ -387,7 +407,6 @@ class Pictures extends React.Component {
           </Modal.Footer>
         </Modal>
 
-
         {/* <div>
           <Link to={`/albums/${this.props.match.params.id}/requests`}>Requests</Link>{' | '}
           <Link to={`/albums/${this.props.match.params.id}/settings`}>Settings</Link>{' | '}
@@ -403,6 +422,7 @@ class Pictures extends React.Component {
             </button>
           </Link>
         </div> */}
+
       </div>
     )
   }
