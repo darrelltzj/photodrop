@@ -19,7 +19,13 @@ import {
   Image
  } from 'react-bootstrap'
 
+import * as Masonry from 'react-masonry-component'
+
 import Navbar from '../navbar/Navbar'
+
+const masonryOptions = {
+    transitionDuration: 0
+}
 
 class Pictures extends React.Component {
   constructor(props) {
@@ -81,14 +87,85 @@ class Pictures extends React.Component {
       showPictureSettings: false,
       showParticipants: false
     })
+    firebase.database().ref('/albums/' + this.props.match.params.id).on('value', snapshot => {
+      let album = snapshot.val()
+      this.setState({
+        album: album
+      })
+    })
+    // firebase.database().ref('/pictures/' + this.props.match.params.id).on('value', snapshot => {
+    //   let pictures = []
+    //   snapshot.forEach(picture => {
+    //     pictures.push(picture.val())
+    //   })
+    //   this.setState({
+    //     pictures: pictures
+    //   })
+    // })
+  }
+
+  uploadImage (e) {
+    e.preventDefault()
+
+    // get file
+    let image = e.target.querySelector('#imageUpload').files[0]
+    // Set new Picture ID
+    let newPictureKey = firebase.database().ref().child('pictures').push().key
+
+    // create storage ref
+    // Change Picture Name to ID
+    let imageNameArray = image.name.split('.')
+    let type = imageNameArray[imageNameArray.length - 1]
+    let imageRef = firebase.storage().ref('images/' + newPictureKey + '.' + type)
+
+    // CHECK FOR PICTURE FILES ONLY
+
+    //upload file
+    let task = imageRef.put(image)
+    // update progress
+    task.on('state_changed',
+      function progress(snapshot) {
+        console.log('Progress: ', snapshot)
+      },
+      function error(err) {
+        console.log('Error: ', err)
+      },
+      function complete() {
+        console.log('Completed: ', task)
+        imageRef.getDownloadURL().then((url) => {
+          // GET Current Object of Album inside Pictures
+          let albumInPictures = {}
+          firebase.database().ref('/pictures/' + this.props.match.params.id).once('value', snapshot => {
+            albumInPictures = snapshot.val() || {}
+          })
+          // Update Current Object of Album inside Pictures
+          albumInPictures[newPictureKey] = {
+            id: newPictureKey,
+            url: url,
+            uid: firebase.auth().currentUser.uid,
+            lastUpdate: Date.now()
+          }
+
+          // GET Current Object of Pictures inside Album
+          let picturesInAlbum = this.state.album.pictures || {}
+          // Update Current Object of Pictures inside Album
+          picturesInAlbum[newPictureKey] = true
+
+          let updates = {}
+          updates['/pictures/' + this.props.match.params.id] = albumInPictures
+          updates['/albums/' + this.props.match.params.id + '/pictures/'] = picturesInAlbum
+
+          firebase.database().ref().update(updates)
+          // REDIRECT
+        })
+      }.bind(this)
+    )
   }
 
   editAlbumDetail (e) {
     e.preventDefault()
 
     let updatedAlbum = this.state.album
-
-    console.log(this.state.album)
 
     updatedAlbum.title = e.target.querySelector(`#edit-album-title-${this.props.match.params.id}`).value
 
@@ -117,16 +194,18 @@ class Pictures extends React.Component {
   }
 
   deleteAlbumDetail (e) {
-    if (confirm('Deleting this album will delete the pictures along with it. OK to proceed?')) {
+    if (confirm('Deleting this album is irriversible. OK to proceed?')) {
       e.preventDefault()
       let updates = {}
       updates['/albums/' + this.props.match.params.id] = null
       updates['/pictures/' + this.props.match.params.id] = null
+
+      // NEED A FOR LOOP TO REMOVE album from each user's organising / participating / requests OR Remove album id in user
+      updates['/users/' + firebase.auth().currentUser.uid + '/organising/' + this.props.match.params.id] = null
+      updates['/users/' + firebase.auth().currentUser.uid + '/participating/' + this.props.match.params.id] = null
+
       firebase.database().ref().update(updates).then(() => {
-        this.setState({
-          redirectToUrl: '/',
-          redirectSuccess: true
-        })
+        window.location = '/'
       }).catch((err) => {
         alert(err)
       })
@@ -138,18 +217,18 @@ class Pictures extends React.Component {
   render() {
     let pictureList = this.state.pictures.map((picture, index) => {
       return (
-        <div key={picture.id}>
-          <img src={picture.img}/>
-        </div>
+        // <Col sm={4}>
+          <li key={picture.id} className="picture-container">
+            <img src={picture.url} className="album-image"/>
+          </li>
+        // {/* </Col> */}
       )
     })
 
     return (
       <div>
         <Navbar />
-
         <Col sm={8} className="albums-display">
-
         <div>
             <PageHeader>
               <strong>{this.state.album.title}</strong>{' '}
@@ -171,6 +250,9 @@ class Pictures extends React.Component {
           <Button bsStyle="primary" onClick={(e) => this.open(e, 'addNewPicture')}>
             Add New Picture
           </Button>
+          {/* <Button bsStyle="primary" onClick={(e) => this.open(e, 'addNewPicture')}>
+            Messages
+          </Button> */}
           <Button onClick={(e) => this.open(e, 'editDetails')}>
             Edit Details
           </Button>
@@ -182,11 +264,46 @@ class Pictures extends React.Component {
           </Button>
         </ButtonToolbar>
 
+        {/* <Masonry
+          className={'my-gallery-class'} // default ''
+          elementType={'ul'} // default 'div'
+          // options={masonryOptions} // default {}
+          disableImagesLoaded={false} // default false
+          updateOnEachImageLoad={false} // default false and works only if disableImagesLoaded is false
+            >
+          {pictureList}
+        </Masonry> */}
+
+        <div>
+          {pictureList}
+        </div>
+
+        </Col>
+
         <Modal show={this.state.showAddNewPicture} onHide={(e) => this.close(e)}>
           <Modal.Header closeButton>
             <Modal.Title>Add New Picture</Modal.Title>
           </Modal.Header>
           <Modal.Body>
+            <Form horizontal onSubmit={(e) => this.uploadImage(e)}>
+
+              <FormGroup bsSize="large">
+                <Col sm={12}>
+                  <FormControl type='file' id='imageUpload' accept='image/*' capture='camera' />
+                </Col>
+              </FormGroup>
+
+              {/* <FormGroup bsSize="large">
+                <Col sm={12}>
+                  <FormControl componentClass='textarea' placeholder='Tags' />
+                </Col>
+              </FormGroup> */}
+
+              <Button bsStyle="primary" type="submit">
+                Submit
+              </Button>
+
+            </Form>
           </Modal.Body>
           <Modal.Footer>
             <Button onClick={(e) => this.close(e)}>Cancel</Button>
@@ -200,7 +317,6 @@ class Pictures extends React.Component {
           <Modal.Body>
             <div>
               <Form horizontal onSubmit={(e) => this.editAlbumDetail(e)}>
-
                 <FormGroup>
                   <Col componentClass={ControlLabel} sm={2}>
                     Title
@@ -237,7 +353,6 @@ class Pictures extends React.Component {
                   </Col>
                 </FormGroup>
               </Form>
-
             </div>
           </Modal.Body>
           <Modal.Footer>
@@ -288,11 +403,6 @@ class Pictures extends React.Component {
             </button>
           </Link>
         </div> */}
-
-        <div>
-          {pictureList}
-        </div>
-        </Col>
       </div>
     )
   }
