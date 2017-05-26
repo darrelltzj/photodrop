@@ -72,7 +72,7 @@ body {
   overflow: scroll;
 }
 
-.album-live-comment-form-container {
+.album-live-comment-form-container .message-form-container {
   bottom: 0;
   overflow: scroll;
 }
@@ -96,8 +96,13 @@ body {
   z-index: 2;
 }
 
+.overall-message-container {
+  max-height: 78vh;
+  overflow: scroll;
+}
+
 .message-container{
-  max-height: 80vh;
+  max-height: 64vh;
   overflow: scroll;
 }
 

@@ -223,18 +223,63 @@ class Pictures extends React.Component {
   deletePicture (e, pictureId) {
     if (confirm('Deleting this picture is irriversible. OK to proceed?')) {
       e.preventDefault()
-      console.log(this.state.pictures, pictureId)
       let updates = {}
       updates['/albums/' + this.props.match.params.id + '/pictures/' + pictureId] = null
       updates['/pictures/' + this.props.match.params.id + '/' + pictureId] = null
+      // NEED TO CHECK HOW TO PREVENT CLOSING THE MODAL
       firebase.database().ref().update(updates).then(() => {
-        console.log('Delete Successful')
+        console.log('Delete Message Successful')
       }).catch((err) => {
         alert(err)
       })
     } else {
       return false
     }
+  }
+
+  deleteMessage (e, messageId) {
+    if (confirm('Deleting this picture is irriversible. OK to proceed?')) {
+      e.preventDefault()
+
+      console.log(this.state.messages, messageId)
+
+      let updates = {}
+      updates['/messages/' + this.props.match.params.id + '/' + messageId] = null
+      firebase.database().ref().update(updates).then(() => {
+        console.log('Delete Message Successful')
+      }).catch((err) => {
+        alert(err)
+      })
+    } else {
+      return false
+    }
+  }
+
+  newMessage(e, albumId) {
+    e.preventDefault()
+    let userName = ''
+    firebase.database().ref('/users/' + firebase.auth().currentUser.uid + '/name/').once("value", snapshot => {
+      userName = snapshot.val()
+    })
+
+    let newMessageKey = firebase.database().ref('/messages/' + albumId).push().key
+    let newMessage = {
+      id: newMessageKey,
+      uid: firebase.auth().currentUser.uid,
+      userEmail: firebase.auth().currentUser.email,
+      userName: userName,
+      message: e.target.querySelector(`#new-internal-message-${albumId}`).value,
+      timestamp: Date.now()
+    }
+
+    let updates = {}
+    updates['/messages/' + albumId + '/' + newMessageKey] = newMessage
+    firebase.database().ref().update(updates).then(() => {
+      console.log('New Message Sent')
+    }).catch((err) => {
+      alert(err)
+    })
+    
   }
 
   render() {
@@ -356,8 +401,26 @@ class Pictures extends React.Component {
             <Modal.Title>Messages</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <div className="message-container">
-              {messageList}
+            <div className="overall-message-container">
+              <div className="message-container">
+                {messageList}
+              </div>
+              <div className="message-form-container">
+                <Form className="album-live-comment-form" onSubmit={(e) => this.newMessage(e, this.props.match.params.id)}>
+                  <FormGroup>
+                    <Col sm={12}>
+                    <FormControl componentClass="textarea" placeholder="Add a live message..." id={`new-internal-message-${this.props.match.params.id}`}/>
+                    </Col>
+                  </FormGroup>
+                  <FormGroup>
+                    <Col sm={1}>
+                    <Button type="submit" bsStyle="primary">
+                      Submit
+                    </Button>
+                    </Col>
+                  </FormGroup>
+                </Form>
+              </div>
             </div>
           </Modal.Body>
           <Modal.Footer>
