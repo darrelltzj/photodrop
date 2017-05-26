@@ -96,6 +96,11 @@ body {
   z-index: 2;
 }
 
+.message-container{
+  max-height: 80vh;
+  overflow: scroll;
+}
+
 @media only screen and (max-width: 768px) {
   .nav-menu {
     margin-left: auto;

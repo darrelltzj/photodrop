@@ -29,7 +29,9 @@ class Pictures extends React.Component {
     this.state = {
       album: '',
       pictures: [],
+      messages: [],
       showAddNewPicture: false,
+      showMessages: false,
       showEditDetails: false,
       showPictureSettings: false,
       showParticipants: false
@@ -53,12 +55,26 @@ class Pictures extends React.Component {
         pictures: pictures
       })
     })
+
+    firebase.database().ref('/messages/' + this.props.match.params.id).on('value', snapshot => {
+      let messages = []
+      snapshot.forEach(message => {
+        messages.push(message.val())
+      })
+      this.setState({
+        messages: messages
+      })
+    })
   }
 
   open (e, selection) {
     if (selection == 'addNewPicture') {
       this.setState({
         showAddNewPicture: true
+      })
+    } else if (selection == 'showMessages') {
+      this.setState({
+        showMessages: true
       })
     } else if (selection == 'editDetails') {
       this.setState({
@@ -75,29 +91,23 @@ class Pictures extends React.Component {
     }
   }
 
-  close () {
+  close (e, selection) {
     // HANDLE RESET STATE
     this.setState({
       showAddNewPicture: false,
+      showMessages: false,
       showEditDetails: false,
       showPictureSettings: false,
       showParticipants: false
     })
-    firebase.database().ref('/albums/' + this.props.match.params.id).on('value', snapshot => {
-      let album = snapshot.val()
-      this.setState({
-        album: album
+    if (selection == 'showEditDetails') {
+      firebase.database().ref('/albums/' + this.props.match.params.id).on('value', snapshot => {
+        let album = snapshot.val()
+        this.setState({
+          album: album
+        })
       })
-    })
-    // firebase.database().ref('/pictures/' + this.props.match.params.id).on('value', snapshot => {
-    //   let pictures = []
-    //   snapshot.forEach(picture => {
-    //     pictures.push(picture.val())
-    //   })
-    //   this.setState({
-    //     pictures: pictures
-    //   })
-    // })
+    }
   }
 
   uploadImage (e) {
@@ -228,24 +238,41 @@ class Pictures extends React.Component {
   }
 
   render() {
-    let pictureList = this.state.pictures.map((picture, index) => {
-      return (
-          <div key={picture.id} className="picture-container">
-            <Image src={picture.url} className="album-image" rounded/>
-            <div className="picture-image-cover-container">
-              <div className="picture-image-delete-container">
-                <Button onClick={(e) => this.deletePicture(e, picture.id)} bsStyle="link">
-                  Delete
-                </Button>
-              </div>
-            </div>
-          </div>
-      )
-    })
-
     const masonryOptions = {
         transitionDuration: 0.8
     }
+
+    let pictureList = this.state.pictures.map((picture, index) => {
+      return (
+        <div key={picture.id} className="picture-container">
+          <Image src={picture.url} className="album-image" rounded/>
+          <div className="picture-image-cover-container">
+            <div className="picture-image-delete-container">
+              <Button onClick={(e) => this.deletePicture(e, picture.id)} bsStyle="link">
+                Delete
+              </Button>
+            </div>
+          </div>
+        </div>
+      )
+    })
+
+    let messageList = this.state.messages.map((message, index) => {
+      let timestamp = Date(message.timestamp)
+      return (
+        <div key={message.id}>
+          <strong>{message.userName}</strong>
+          <br></br>
+          {message.message}
+          <br></br>
+          <small>{timestamp}</small>
+          <Button onClick={(e) => this.deleteMessage(e, message.id)} bsStyle="link">
+            Delete
+          </Button>
+          <br></br><br></br>
+        </div>
+      )
+    })
 
     return (
       <div>
@@ -262,7 +289,7 @@ class Pictures extends React.Component {
           <Form horizontal onChange={(e) => this.search(e)}>
             <FormGroup bsSize="large">
               <Col sm={12}>
-                <FormControl type='text' placeholder='Search Pictures' />
+                <FormControl type='text' placeholder='Search Pictures of Author' />
               </Col>
             </FormGroup>
           </Form>
@@ -270,11 +297,11 @@ class Pictures extends React.Component {
 
         <ButtonToolbar>
           <Button bsStyle="primary" onClick={(e) => this.open(e, 'addNewPicture')}>
-            Add New Picture
+            Add Picture
           </Button>
-          {/* <Button bsStyle="primary" onClick={(e) => this.open(e, 'addNewPicture')}>
+          <Button bsStyle="primary" onClick={(e) => this.open(e, 'showMessages')}>
             Messages
-          </Button> */}
+          </Button>
           <Button onClick={(e) => this.open(e, 'editDetails')}>
             Edit Details
           </Button>
@@ -300,7 +327,7 @@ class Pictures extends React.Component {
 
         </Col>
 
-        <Modal show={this.state.showAddNewPicture} onHide={(e) => this.close(e)}>
+        <Modal show={this.state.showAddNewPicture} onHide={(e) => this.close(e, 'showAddNewPicture')}>
           <Modal.Header closeButton>
             <Modal.Title>Add New Picture</Modal.Title>
           </Modal.Header>
@@ -313,12 +340,6 @@ class Pictures extends React.Component {
                 </Col>
               </FormGroup>
 
-              {/* <FormGroup bsSize="large">
-                <Col sm={12}>
-                  <FormControl componentClass='textarea' placeholder='Tags' />
-                </Col>
-              </FormGroup> */}
-
               <Button bsStyle="primary" type="submit">
                 Submit
               </Button>
@@ -326,11 +347,25 @@ class Pictures extends React.Component {
             </Form>
           </Modal.Body>
           <Modal.Footer>
-            <Button onClick={(e) => this.close(e)}>Cancel</Button>
+            <Button onClick={(e) => this.close(e, 'showAddNewPicture')}>Cancel</Button>
           </Modal.Footer>
         </Modal>
 
-        <Modal show={this.state.showEditDetails} onHide={(e) => this.close(e)}>
+        <Modal bsSize="large" container={this} aria-labelledby="contained-modal-title" show={this.state.showMessages} onHide={(e) => this.close(e, 'showMessages')}>
+          <Modal.Header closeButton>
+            <Modal.Title>Messages</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <div className="message-container">
+              {messageList}
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button onClick={(e) => this.close(e, 'showMessages')}>Cancel</Button>
+          </Modal.Footer>
+        </Modal>
+
+        <Modal show={this.state.showEditDetails} onHide={(e) => this.close(e, 'showEditDetails')}>
           <Modal.Header closeButton>
             <Modal.Title>Edit Details</Modal.Title>
           </Modal.Header>
@@ -376,13 +411,13 @@ class Pictures extends React.Component {
             </div>
           </Modal.Body>
           <Modal.Footer>
-            <Button onClick={(e) => this.close(e)}>
+            <Button onClick={(e) => this.close(e, 'showEditDetails')}>
               Cancel
             </Button>
           </Modal.Footer>
         </Modal>
 
-        <Modal bsSize="large" show={this.state.showPictureSettings} onHide={(e) => this.close(e)}>
+        <Modal bsSize="large" show={this.state.showPictureSettings} onHide={(e) => this.close(e, 'showPictureSettings')}>
           <Modal.Header closeButton>
             <Modal.Title>Picture Settings</Modal.Title>
           </Modal.Header>
@@ -392,18 +427,18 @@ class Pictures extends React.Component {
             </Button>
           </Modal.Body>
           <Modal.Footer>
-            <Button onClick={(e) => this.close(e)}>Cancel</Button>
+            <Button onClick={(e) => this.close(e, 'showPictureSettings')}>Cancel</Button>
           </Modal.Footer>
         </Modal>
 
-        <Modal bsSize="large" show={this.state.showParticipants} onHide={(e) => this.close(e)}>
+        <Modal bsSize="large" show={this.state.showParticipants} onHide={(e) => this.close(e, 'showParticipants')}>
           <Modal.Header closeButton>
             <Modal.Title>Participants</Modal.Title>
           </Modal.Header>
           <Modal.Body>
           </Modal.Body>
           <Modal.Footer>
-            <Button onClick={(e) => this.close(e)}>Cancel</Button>
+            <Button onClick={(e) => this.close(e, 'showParticipants')}>Cancel</Button>
           </Modal.Footer>
         </Modal>
 

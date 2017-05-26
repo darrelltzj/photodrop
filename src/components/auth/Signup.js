@@ -37,6 +37,8 @@ class Signup extends React.Component {
       firebase.auth().createUserWithEmailAndPassword(emailSignup, passwordSignup)
 
       .then((user) => {
+        user.updateProfile({displayName: nameSignup})
+        
         let newUser = {
           id: user.uid,
           name: nameSignup,

@@ -29,7 +29,7 @@ class Albums extends React.Component {
     this.state = {
       albums: [],
       pictures: [],
-      messages: [],
+      messages: {},
       // currentUserUid: firebase.auth().currentUser.uid || '',
       key: 'participating',
       showModal: false
@@ -58,10 +58,6 @@ class Albums extends React.Component {
     })
 
     firebase.database().ref('/messages/').on('value', snapshot => {
-      // let messages = []
-      // snapshot.forEach(message => {
-      //   messages.push(message.val())
-      // })
       this.setState({
         messages: snapshot.val()
       })
@@ -82,7 +78,7 @@ class Albums extends React.Component {
     this.setState({ showModal: true })
   }
 
-  newAlbum(e) {
+  newAlbum (e) {
     e.preventDefault()
     let currentUserUid = firebase.auth().currentUser.uid
 
@@ -119,11 +115,19 @@ class Albums extends React.Component {
   }
 
   newMessage(e, albumId) {
+
     e.preventDefault()
+    let userName = ''
+    firebase.database().ref('/users/' + firebase.auth().currentUser.uid + '/name/').once("value", snapshot => {
+      userName = snapshot.val()
+    })
+
     let newMessageKey = firebase.database().ref('/messages/' + albumId).push().key
     let newMessage = {
       id: newMessageKey,
-      user: firebase.auth().currentUser.uid,
+      uid: firebase.auth().currentUser.uid,
+      userEmail: firebase.auth().currentUser.email,
+      userName: userName,
       message: e.target.querySelector(`#new-message-${albumId}`).value,
       timestamp: Date.now()
     }
@@ -144,6 +148,18 @@ class Albums extends React.Component {
           return true
         }
       }).map((album,index) => {
+
+        let albumIdArray = Object.keys(this.state.messages).filter((albumId, index) => {
+          if (albumId == album.id) {
+              return true
+            }
+        })[0]
+
+        let messageList = []
+        for (var key in this.state.messages[albumIdArray]) {
+          messageList.push(this.state.messages[albumIdArray][key])
+        }
+
         return (
           <div key={album.id}>
 
@@ -159,7 +175,7 @@ class Albums extends React.Component {
                 </Link>
 
                 <div className="album-live-comment-container">
-                  <MessagesDisplay messages={this.state.messages} albumId={album.id}/>
+                  <MessagesDisplay messages={messageList} albumId={album.id}/>
                 </div>
               </div>
 
@@ -239,14 +255,14 @@ class Albums extends React.Component {
           <Form horizontal onChange={(e) => this.search(e)}>
             <FormGroup bsSize="large">
               <Col sm={12}>
-                <FormControl type='text' id='search-albums' name="search-albums" placeholder='Search Albums' />
+                <FormControl type='text' id='search-albums' name="search-albums" placeholder='Search Albums by Title' />
               </Col>
             </FormGroup>
           </Form>
 
           <Col sm={4} md={2}>
             <Button bsStyle="primary" onClick={(e) => this.open(e)}>
-              Create New Album
+              Create Album
             </Button>
           </Col>
 
