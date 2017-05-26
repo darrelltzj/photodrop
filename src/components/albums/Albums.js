@@ -21,6 +21,7 @@ import {
  } from 'react-bootstrap'
 
 import Navbar from '../navbar/Navbar'
+import MessagesDisplay from '../messages/MessagesDisplay'
 
 class Albums extends React.Component {
   constructor (props) {
@@ -28,6 +29,7 @@ class Albums extends React.Component {
     this.state = {
       albums: [],
       pictures: [],
+      messages: [],
       // currentUserUid: firebase.auth().currentUser.uid || '',
       key: 'participating',
       showModal: false
@@ -52,6 +54,16 @@ class Albums extends React.Component {
       })
       this.setState({
         pictures: pictures
+      })
+    })
+
+    firebase.database().ref('/messages/').on('value', snapshot => {
+      // let messages = []
+      // snapshot.forEach(message => {
+      //   messages.push(message.val())
+      // })
+      this.setState({
+        messages: snapshot.val()
       })
     })
   }
@@ -106,6 +118,24 @@ class Albums extends React.Component {
     })
   }
 
+  newMessage(e, albumId) {
+    e.preventDefault()
+    let newMessageKey = firebase.database().ref('/messages/' + albumId).push().key
+    let newMessage = {
+      id: newMessageKey,
+      user: firebase.auth().currentUser.uid,
+      message: e.target.querySelector(`#new-message-${albumId}`).value,
+      timestamp: Date.now()
+    }
+    let updates = {}
+    updates['/messages/' + albumId + '/' + newMessageKey] = newMessage
+    firebase.database().ref().update(updates).then(() => {
+      console.log('New Message Sent')
+    }).catch((err) => {
+      alert(err)
+    })
+  }
+
   render () {
     let albumsParticipating = []
     if (this.state.albums.length > 0) {
@@ -129,16 +159,15 @@ class Albums extends React.Component {
                 </Link>
 
                 <div className="album-live-comment-container">
-                  Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                  Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                  <MessagesDisplay messages={this.state.messages} albumId={album.id}/>
                 </div>
               </div>
 
               <div className="album-live-comment-form-container">
-                <Form className="album-live-comment-form">
+                <Form className="album-live-comment-form" onSubmit={(e) => this.newMessage(e, album.id)}>
                   <FormGroup>
                     <Col sm={12}>
-                    <FormControl componentClass="textarea" placeholder="Add a live comment..." />
+                    <FormControl componentClass="textarea" placeholder="Add a live message..." id={`new-message-${album.id}`}/>
                     </Col>
                   </FormGroup>
                   <FormGroup>
