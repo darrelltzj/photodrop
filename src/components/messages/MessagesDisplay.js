@@ -35,9 +35,15 @@ class MessagesDisplay extends React.Component {
           return true
         }
     })[0]
-    let messageList
+    let messageList = []
+    for (var key in this.state.messages[albumIdArray]) {
+      messageList.push(this.state.messages[albumIdArray][key])
+    }
+    console.log('filtered', this.state.messages[albumIdArray])
+    console.log('list', messageList)
 
-    console.log('filtered', albumIdArray)
+    // NOW MAP IT
+
 
     // let messageList = this.state.messages.filter((message, index) => {
     //   console.log(this.props.albumId, 'message', message)
