@@ -106,6 +106,32 @@ body {
   overflow: scroll;
 }
 
+.presentation-container {
+  max-width:100%;
+  max-height: 100%;
+}
+
+.presentation-images-container {
+  width:100vw;
+  height: 100vh;
+	position: relative;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.presentation-image {
+	position: absolute;
+	max-width: 100%;
+	max-height: 100%;
+	opacity: 0;
+	transition: opacity 1s linear;
+}
+
+.presentation-images-container > .presentation-image:first-child {
+	opacity: 1;
+}
+
 @media only screen and (max-width: 768px) {
   .nav-menu {
     margin-left: auto;

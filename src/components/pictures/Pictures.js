@@ -114,7 +114,7 @@ class Pictures extends React.Component {
     e.preventDefault()
 
     // get file
-    let image = e.target.querySelector('#imageUpload').files[0]
+    let image = e.target.querySelector('#imageUpload-' + this.props.match.params.id).files[0]
     // Set new Picture ID
     let newPictureKey = firebase.database().ref().child('pictures').push().key
 
@@ -385,7 +385,7 @@ class Pictures extends React.Component {
 
               <FormGroup bsSize="large">
                 <Col sm={12}>
-                  <FormControl type='file' id='imageUpload' accept='image/*' capture='camera' />
+                  <FormControl type='file' id={`imageUpload-${this.props.match.params.id}`} accept='image/*' capture='camera' />
                 </Col>
               </FormGroup>
 
