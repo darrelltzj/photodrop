@@ -279,7 +279,11 @@ class Pictures extends React.Component {
     }).catch((err) => {
       alert(err)
     })
-    
+  }
+
+  presentationRedirect(e) {
+    e.preventDefault()
+    window.open(('/albums/' + this.props.match.params.id + '/presentation/'), '_blank').requestFullScreen
   }
 
   render() {
@@ -485,8 +489,8 @@ class Pictures extends React.Component {
             <Modal.Title>Picture Settings</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <Button bsStyle="link">
-              Live
+            <Button bsStyle="link" onClick={(e) => this.presentationRedirect(e)}>
+              Open Presentation Screen
             </Button>
           </Modal.Body>
           <Modal.Footer>

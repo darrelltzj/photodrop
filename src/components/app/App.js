@@ -12,10 +12,13 @@ import * as firebase from 'firebase'
 import Signup from '../auth/Signup'
 import Login from '../auth/Login'
 import Albums from '../albums/Albums'
+import Pictures from '../pictures/Pictures'
+import Presentation from '../presentation/Presentation'
+
+// NOT NEEEDED
 import AlbumsNew from '../albumsNew/AlbumsNew'
 import AlbumEdit from '../albumEdit/AlbumEdit'
 import AlbumSettings from '../albumSettings/AlbumSettings'
-import Pictures from '../pictures/Pictures'
 import PicturesNew from '../picturesNew/PicturesNew'
 
 class App extends React.Component {
@@ -100,15 +103,19 @@ class App extends React.Component {
 
           <Route exact path={'/login'} component={Login}/>
 
+          {/* ===NOT USED=== */}
           <Route exact path={'/albums_new'} component={AlbumsNew}/>
-
           <Route exact path={'/albums/:id/edit'} component={AlbumEdit}/>
-
           <Route exact path={'/albums/:id/settings'} component={AlbumSettings}/>
+          {/* ===NOT USED=== */}
 
-          <PropsRoute exact path={'/albums/:id'} component={Pictures} albums={this.state.albums} pictures={this.state.pictures} />
+          <Route exact path={'/albums/:id'} component={Pictures} />
 
+          <Route exact path={'/albums/:id/presentation'} component={Presentation} />
+
+          {/* ===NOT USED=== */}
           <PropsRoute exact path={'/albums/:id/pictures_new'} component={PicturesNew} pictures={this.state.pictures}/>
+          {/* ===NOT USED=== */}
 
         </Switch>
       </Router>
