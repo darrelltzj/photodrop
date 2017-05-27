@@ -10,7 +10,8 @@ class Presentation extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      pictures: []
+      pictures: [],
+      messages: []
     }
     this.images = []
     this.index = 0
@@ -29,11 +30,21 @@ class Presentation extends React.Component {
         pictures: pictures
       })
     })
+
+    firebase.database().ref('/messages/' + this.props.match.params.id).on('value', snapshot => {
+      let messages = []
+      snapshot.forEach(message => {
+        messages.push(message.val())
+      })
+      this.setState({
+        messages: messages
+      })
+    })
   }
 
   setImages(e) {
     this.images = document.querySelector(`#album-${this.props.match.params.id}-presentation`).querySelectorAll('.presentation-image')
-    console.log(this.images, this.index)
+    // console.log(this.images, this.index)
   }
 
   slideTo(index) {
@@ -57,7 +68,7 @@ class Presentation extends React.Component {
         self.index = 0
       }
 
-      console.log('IMAGE INDEX: ', self.index)
+      // console.log('IMAGE INDEX: ', self.index)
 
       self.slideTo(self.index)
     }, 3000)
@@ -69,10 +80,30 @@ class Presentation extends React.Component {
         <Image src={picture.url} key={picture.id} className="presentation-image" />
       )
     })
+
+    let messageList = this.state.messages.map((message, index) => {
+      let timestamp = Date(message.timestamp)
+      return (
+        <div key={message.id}>
+          <strong>{message.userName}</strong>
+          <br></br>
+          {message.message}
+          <br></br>
+          <small>{timestamp}</small>
+          <br></br><br></br>
+        </div>
+      )
+    })
+
+    console.log('messages', messageList)
+
     return (
       <div className="presentation-container" id={`album-${this.props.match.params.id}-presentation`} onLoad={(e) => this.setImages(e)}>
         <div className="presentation-images-container">
           {pictureList}
+          <div className="album-live-comment-container">
+          {messageList[messageList.length - 1]}
+          </div>
         </div>
       </div>
     )
