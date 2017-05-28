@@ -1,4 +1,5 @@
 import React from 'react'
+import ReactDOM from 'react-dom'
 
 import * as firebase from 'firebase'
 
@@ -17,6 +18,8 @@ class Presentation extends React.Component {
     this.index = 0
     this.total = this.images.length
 		this.timer = null
+    this.messagesEnd = null
+    this.playPictures = false
     this.action()
   }
 
@@ -40,11 +43,20 @@ class Presentation extends React.Component {
         messages: messages
       })
     })
+
+    firebase.database().ref('/albums/' + this.props.match.params.id + '/live').on('value', snapshot => {
+      this.playPictures = snapshot.val()
+      console.log(this.playPictures)
+    })
+  }
+
+  componentDidUpdate () {
+    console.log('updating');
+    this.stopStart()
   }
 
   setImages(e) {
     this.images = document.querySelector(`#album-${this.props.match.params.id}-presentation`).querySelectorAll('.presentation-image')
-    // console.log(this.images, this.index)
   }
 
   slideTo(index) {
@@ -62,16 +74,32 @@ class Presentation extends React.Component {
   action () {
     let self = this
 
-    self.timer = setInterval(function () {
-      self.index++
-      if(self.index == self.images.length) {
-        self.index = 0
-      }
+    if (!self.timer) {
 
-      // console.log('IMAGE INDEX: ', self.index)
+      self.timer = setInterval(function () {
+        self.index++
+        if(self.index == self.images.length) {
+          self.index = 0
+        }
 
-      self.slideTo(self.index)
-    }, 3000)
+        console.log('INDEX', self.index)
+
+        self.slideTo(self.index)
+      }, 3000)
+
+    }
+
+  }
+
+  stopStart () {
+    let self = this
+    console.log(self.timer);
+    if (self.playPictures) {
+      self.action()
+    } else {
+      clearInterval(self.timer)
+      self.timer = null
+    }
   }
 
   render() {
@@ -95,14 +123,17 @@ class Presentation extends React.Component {
       )
     })
 
-    console.log('messages', messageList)
+    if (document.querySelector('.message-end')) {
+      document.querySelector('.message-end').scrollIntoView(true)
+    }
 
     return (
       <div className="presentation-container" id={`album-${this.props.match.params.id}-presentation`} onLoad={(e) => this.setImages(e)}>
         <div className="presentation-images-container">
           {pictureList}
-          <div className="album-live-comment-container">
-          {messageList[messageList.length - 1]}
+          <div className="presentation-message-container">
+          {messageList}
+          <div className="message-end" ref={(el) => { this.messagesEnd = el }}></div>
           </div>
         </div>
       </div>

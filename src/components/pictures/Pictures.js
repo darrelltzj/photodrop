@@ -16,7 +16,10 @@ import {
   ButtonToolbar,
   PageHeader,
   Modal,
-  Image
+  Image,
+  Tabs,
+  Tab,
+  Thumbnail
  } from 'react-bootstrap'
 
 import Masonry from 'react-masonry-component'
@@ -42,7 +45,7 @@ class Pictures extends React.Component {
     firebase.database().ref('/albums/' + this.props.match.params.id).on('value', snapshot => {
       let album = snapshot.val()
       this.setState({
-        album: album
+        album: album,
       })
     })
 
@@ -281,9 +284,35 @@ class Pictures extends React.Component {
     })
   }
 
-  presentationRedirect(e) {
+  presentationRedirect (e) {
     e.preventDefault()
     window.open(('/albums/' + this.props.match.params.id + '/presentation/'), '_blank').requestFullScreen
+  }
+
+  playPictures (e) {
+    e.preventDefault()
+    let album = this.state.album
+    let updates = {}
+    if (this.state.album.live) {
+      updates['/albums/' + this.props.match.params.id + '/live'] = false
+      album['live'] = false
+      this.setState({
+        album: album
+      })
+      // console.log(this.state.album.live)
+    } else {
+      updates['/albums/' + this.props.match.params.id + '/live'] = true
+      album['live'] = true
+      this.setState({
+        album: album
+      })
+      // console.log(this.state.album.live)
+    }
+    firebase.database().ref().update(updates).then(() => {
+      console.log('Updated Pictures Status')
+    }).catch((err) => {
+      alert(err)
+    })
   }
 
   render() {
@@ -322,6 +351,8 @@ class Pictures extends React.Component {
         </div>
       )
     })
+
+    let pictureSettings = this.state.album.live ? 'Pause Pictures' : 'Play Pictures'
 
     return (
       <div>
@@ -489,9 +520,47 @@ class Pictures extends React.Component {
             <Modal.Title>Picture Settings</Modal.Title>
           </Modal.Header>
           <Modal.Body>
+            <Button bsStyle="primary" onClick={(e) => this.playPictures(e)}>
+              {pictureSettings}
+            </Button>
+            <Button bsStyle="primary">
+              Play Audio
+            </Button>
             <Button bsStyle="link" onClick={(e) => this.presentationRedirect(e)}>
               Open Presentation Screen
             </Button>
+            <div>
+              <Tabs defaultActiveKey={1}>
+                <Tab eventKey={1} title="Pictures">
+                  <div className="settings-images">
+                    <Col sm={4}>
+                    <div>
+                      <Thumbnail src="https://firebasestorage.googleapis.com/v0/b/yoursincerely-3ee90.appspot.com/o/images%2F-KkzDdceW3h1zQ4AJOxv.png?alt=media&token=56ae9a38-5bce-4bbf-a70e-d434e6485804" className="thumbnail"/>
+                      <Button bsStyle="primary">
+                      {'<'}
+                      </Button>
+                      <Button bsStyle="primary">
+                        {'>'}
+                      </Button>
+                    </div>
+                  </Col>
+                  </div>
+                </Tab>
+
+                <Tab eventKey={2} title="Audio">
+                  <div>
+                    <div>
+                      Audio Name
+                      <Button bsStyle="primary">
+                        Play
+                      </Button>
+                    </div>
+                  </div>
+                </Tab>
+              </Tabs>
+
+            </div>
+
           </Modal.Body>
           <Modal.Footer>
             <Button onClick={(e) => this.close(e, 'showPictureSettings')}>Cancel</Button>

@@ -183,7 +183,7 @@ class Albums extends React.Component {
                 <Form className="album-live-comment-form" onSubmit={(e) => this.newMessage(e, album.id)}>
                   <FormGroup>
                     <Col sm={12}>
-                    <FormControl componentClass="textarea" placeholder="Add a live message..." id={`new-message-${album.id}`}/>
+                    <FormControl componentClass="textarea" placeholder="Drop a message..." id={`new-message-${album.id}`}/>
                     </Col>
                   </FormGroup>
                   <FormGroup>

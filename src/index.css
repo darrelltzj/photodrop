@@ -132,6 +132,30 @@ body {
 	opacity: 1;
 }
 
+.presentation-message-container {
+  color: black;
+  font-size: 20px;
+  background: rgba(255, 255, 255, 0.8);
+  position: absolute;
+  bottom: 0;
+  left: 10%;
+  width: 80%;
+  max-height: 300px;
+  overflow: scroll;
+  transition: opacity 1s linear;
+}
+
+.thumbnail {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.settings-images {
+  max-width: 50%;
+  height: 80%;
+  overflow: scroll;
+}
+
 @media only screen and (max-width: 768px) {
   .nav-menu {
     margin-left: auto;
@@ -147,3 +171,5 @@ body {
     height: 260px;
   }
 }
+
+@import "../node_modules/react-toggle-switch/dist/css/switch.min.css"
