@@ -48,12 +48,8 @@ class Albums extends React.Component {
     })
 
     firebase.database().ref('/pictures').on('value', snapshot => {
-      let pictures = []
-      snapshot.forEach(picture => {
-        pictures.push(picture.val())
-      })
       this.setState({
-        pictures: pictures
+        pictures: snapshot.val()
       })
     })
 
@@ -95,7 +91,7 @@ class Albums extends React.Component {
       owner: currentUserUid,
       organisers: newAlbumOrganisers,
       participants: newAlbumParticipants,
-      requests: {},
+      requests: {'none': true},
       live: false,
       pictures: {},
       current: {},
@@ -115,7 +111,6 @@ class Albums extends React.Component {
   }
 
   newMessage(e, albumId) {
-
     e.preventDefault()
     let userName = ''
     firebase.database().ref('/users/' + firebase.auth().currentUser.uid + '/name/').once("value", snapshot => {
@@ -140,6 +135,30 @@ class Albums extends React.Component {
     })
   }
 
+  newRequest (e, album) {
+    e.preventDefault()
+    let updates = {}
+    updates['/albums/' + album.id + '/requests/' + firebase.auth().currentUser.uid] = true
+    updates['/users/' + firebase.auth().currentUser.uid + '/requesting/' + album.id] = true
+    firebase.database().ref().update(updates).then(() => {
+      console.log('Updated Request')
+    }).catch((err) => {
+      alert(err)
+    })
+  }
+
+  offRequest (e, album) {
+    e.preventDefault()
+    let updates = {}
+    updates['/albums/' + album.id + '/requests/' + firebase.auth().currentUser.uid] = null
+    updates['/users/' + firebase.auth().currentUser.uid + '/requesting/' + album.id] = null
+    firebase.database().ref().update(updates).then(() => {
+      console.log('Updated Request')
+    }).catch((err) => {
+      alert(err)
+    })
+  }
+
   render () {
     let albumsParticipating = []
     if (this.state.albums.length > 0) {
@@ -149,15 +168,24 @@ class Albums extends React.Component {
         }
       }).map((album,index) => {
 
-        let albumIdArray = Object.keys(this.state.messages).filter((albumId, index) => {
+        let albumId = Object.keys(this.state.messages).filter((albumId, index) => {
           if (albumId == album.id) {
               return true
             }
         })[0]
 
         let messageList = []
-        for (var key in this.state.messages[albumIdArray]) {
-          messageList.push(this.state.messages[albumIdArray][key])
+        for (var key in this.state.messages[albumId]) {
+          messageList.push(this.state.messages[albumId][key])
+        }
+
+        let pictureList = []
+        if (this.state.pictures[album.id]) {
+          for (var key in this.state.pictures[album.id]) {
+            pictureList.push(this.state.pictures[album.id][key])
+          }
+        } else {
+          pictureList.push({id:'default', lastUpdate:'default', uid:'default', url:'http://i.imgur.com/UBshxxy.png'})
         }
 
         return (
@@ -171,7 +199,7 @@ class Albums extends React.Component {
                   </h2>
 
                 <Link to={`/albums/${album.id}`}>
-                  <Image src="http://i.imgur.com/UBshxxy.png" responsive className="album-image"/>
+                  <Image src={pictureList[0].url} responsive className="album-image"/>
                 </Link>
 
                 <div className="album-live-comment-container">
@@ -221,23 +249,92 @@ class Albums extends React.Component {
     }
 
     // NEED TO FILTER REQUESTS
-    // let albumsRequestd = []
+    let albumsRequested = []
+    if (this.state.albums.length > 0) {
+      albumsRequested = this.state.albums.filter((album, index) => {
+        if (firebase.auth().currentUser.uid in album.requests) {
+          return true
+        } else {
+          return false
+        }
+      }).map((album, index) => {
+        let pictureList = []
+        if (this.state.pictures[album.id]) {
+          for (var key in this.state.pictures[album.id]) {
+            pictureList.push(this.state.pictures[album.id][key])
+          }
+        } else {
+          pictureList.push({id:'default', lastUpdate:'default', uid:'default', url:'http://i.imgur.com/UBshxxy.png'})
+        }
+        return (
+          <div key={album.id}>
+            <div className="album-content-container">
+              <div className="album-image-container">
+                <h2 className="album-title">
+                  {album.title}
+                </h2>
+                <Image src={pictureList[0].url} responsive className="album-image"/>
+              </div>
+
+              <div className="request-form-container">
+                <Form className="request-form" onSubmit={(e) => this.offRequest(e, album)}>
+                  <FormGroup>
+                    <Col sm={1}>
+                    <Button type="submit">
+                      Requested
+                    </Button>
+                    </Col>
+                  </FormGroup>
+                </Form>
+              </div>
+
+            </div>
+          </div>
+        )
+      })
+    }
+
     let albumsOthers = []
     if (this.state.albums.length > 0) {
       albumsOthers = this.state.albums.filter((album, index) => {
-        if (firebase.auth().currentUser.uid in album.organisers || firebase.auth().currentUser.uid in album.participants) {
+        if (firebase.auth().currentUser.uid in album.organisers || firebase.auth().currentUser.uid in album.participants || firebase.auth().currentUser.uid in album.requests) {
           return false
         } else {
           return true
         }
       }).map((album,index) => {
+        let pictureList = []
+        if (this.state.pictures[album.id]) {
+          for (var key in this.state.pictures[album.id]) {
+            pictureList.push(this.state.pictures[album.id][key])
+          }
+        } else {
+          pictureList.push({id:'default', lastUpdate:'default', uid:'default', url:'http://i.imgur.com/UBshxxy.png'})
+        }
+
         return (
           <div key={album.id}>
-            <Link to={`/albums/${album.id}`}>
-              <PageHeader>
-                <small>{album.title}</small>
-              </PageHeader>
-            </Link>
+            <div className="album-content-container">
+              <div className="album-image-container">
+                <h2 className="album-title">
+                  {album.title}
+                </h2>
+                <Image src={pictureList[0].url} responsive className="album-image"/>
+              </div>
+
+              <div className="request-form-container">
+                <Form className="request-form" onSubmit={(e) => this.newRequest(e, album)}>
+                  <FormGroup>
+                    <Col sm={1}>
+                    <Button type="submit" bsStyle="primary">
+                      Request
+                    </Button>
+                    </Col>
+                  </FormGroup>
+                </Form>
+              </div>
+
+            </div>
           </div>
         )
       })
@@ -282,6 +379,7 @@ class Albums extends React.Component {
 
             <Tab eventKey={'others'} title="Others">
               <div>
+                {albumsRequested}
                 {albumsOthers}
               </div>
             </Tab>

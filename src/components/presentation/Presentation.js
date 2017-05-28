@@ -12,7 +12,9 @@ class Presentation extends React.Component {
     super(props)
     this.state = {
       pictures: [],
-      messages: []
+      messages: [],
+      currentUserUid: null,
+      organiser: false
     }
     this.images = []
     this.index = 0
@@ -21,6 +23,38 @@ class Presentation extends React.Component {
     this.messagesEnd = null
     this.playPictures = false
     this.action()
+  }
+
+  componentWillMount() {
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        // console.log('firebaseAuth', user.uid)
+        this.setState({
+          currentUserUid: user.uid
+        })
+        // console.log('setting state', this.state.currentUserUid)
+        firebase.database().ref('/users/' + user.uid + '/organising').on('value', snapshot => {
+          if (snapshot.val()) {
+            if (this.props.match.params.id in snapshot.val()) {
+              this.setState({
+                organiser: true
+              })
+            } else {
+              window.location = '/'
+            }
+          } else {
+            window.location = '/'
+          }
+        })
+      } else {
+        // console.log('firebaseAuth', user)
+        this.setState({
+          currentUserUid: null,
+          organiser: false,
+        })
+        // console.log('setting state', this.state.currentUserUid)
+      }
+    })
   }
 
   componentDidMount () {

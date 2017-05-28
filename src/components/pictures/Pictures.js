@@ -30,15 +30,63 @@ class Pictures extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      album: '',
+      album: {},
       pictures: [],
       messages: [],
       showAddNewPicture: false,
       showMessages: false,
       showEditDetails: false,
       showPictureSettings: false,
-      showParticipants: false
+      showParticipants: false,
+      currentUserUid: null,
+      organiser: false,
+      participant: false
     }
+  }
+
+  componentWillMount() {
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        // console.log('firebaseAuth', user.uid)
+        this.setState({
+          currentUserUid: user.uid
+        })
+        // console.log('setting state', this.state.currentUserUid)
+
+        firebase.database().ref('/users/' + user.uid + '/organising').on('value', snapshot => {
+          if (snapshot.val()) {
+            if (this.props.match.params.id in snapshot.val()) {
+              this.setState({
+                organiser: true
+              })
+            }
+          }
+        })
+
+        firebase.database().ref('/users/' + user.uid + '/participating').on('value', snapshot => {
+          if (snapshot.val()) {
+            if (this.props.match.params.id in snapshot.val()) {
+              this.setState({
+                participant: true
+              })
+            } else {
+              window.location = '/'
+            }
+          } else {
+            window.location = '/'
+          }
+        })
+
+      } else {
+        // console.log('firebaseAuth', user)
+        this.setState({
+          currentUserUid: null,
+          organiser: false,
+          participant: false
+        })
+        // console.log('setting state', this.state.currentUserUid)
+      }
+    })
   }
 
   componentDidMount () {
@@ -354,6 +402,34 @@ class Pictures extends React.Component {
 
     let pictureSettings = this.state.album.live ? 'Pause Pictures' : 'Play Pictures'
 
+    // let user = {}
+
+    let organisers = []
+    for (var key in this.state.album['organisers']) {
+      firebase.database().ref('/users/' + key).on('value', snapshot => {
+        organisers.push(snapshot.val())
+      })
+    }
+
+    let participants = []
+    for (var key in this.state.album['participants']) {
+      firebase.database().ref('/users/' + key).on('value', snapshot => {
+        participants.push(snapshot.val())
+      })
+    }
+
+    let requests = []
+    for (var key in this.state.album['requests']) {
+      firebase.database().ref('/users/' + key).on('value', snapshot => {
+        if (snapshot.val()) {
+          requests.push(snapshot.val())
+        }
+      })
+    }
+
+    // MAP INTO TABLE OR ALL USER TO STATE???
+    console.log(organisers, participants, requests)
+
     return (
       <div>
         <Navbar />
@@ -572,6 +648,7 @@ class Pictures extends React.Component {
             <Modal.Title>Participants</Modal.Title>
           </Modal.Header>
           <Modal.Body>
+
           </Modal.Body>
           <Modal.Footer>
             <Button onClick={(e) => this.close(e, 'showParticipants')}>Cancel</Button>
@@ -597,6 +674,11 @@ class Pictures extends React.Component {
       </div>
     )
   }
+
+  // checkUserType() {
+  //   console.log('reading', firebase.auth().currentUser.uid)
+  // }
+
 }
 
 export default Pictures

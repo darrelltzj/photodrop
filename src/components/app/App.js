@@ -28,7 +28,7 @@ class App extends React.Component {
     this.state = {
       albums: [],
       pictures: [],
-      // currentUser: null
+      // currentUserUid: null
     }
   }
 
@@ -61,32 +61,32 @@ class App extends React.Component {
       })
     })
 
-  //   firebase.auth().onAuthStateChanged((user) => {
-  //     if (user) {
-  //       console.log('firebaseAuth', user)
-  //       console.log('this', this)
-  //
-  //       this.setState({
-  //         currentUser: true
-  //       })
-  //
-  //       console.log('setting state', this.state.currentUser)
-  //
-  //     } else {
-  //       console.log('firebaseAuth', user)
-  //
-  //       this.setState({
-  //         currentUser: false
-  //       })
-  //
-  //       console.log('setting state', this.state.currentUser)
-  //     }
-  //   })
+    // firebase.auth().onAuthStateChanged((user) => {
+    //   if (user) {
+    //     // console.log('firebaseAuth', user)
+    //     // console.log('this', this)
+    //
+    //     this.setState({
+    //       currentUserUid: user.uid
+    //     })
+    //
+    //     // console.log('setting state', this.state.currentUserUid)
+    //
+    //   } else {
+    //     // console.log('firebaseAuth', user)
+    //
+    //     this.setState({
+    //       currentUserUid: null
+    //     })
+    //
+    //     // console.log('setting state', this.state.currentUserUid)
+    //   }
+    // })
   }
 
   render () {
 
-    // console.log('isloggedin', this.state.currentUser, !!firebase.auth().currentUser)
+    // console.log('isloggedin', this.state.currentUserUid, !!firebase.auth().currentUser)
 
     return (
       <Router>
