@@ -28,6 +28,7 @@ class Login extends React.Component {
     firebase.auth().signInWithEmailAndPassword(emailLogin, passwordLogin)
     .then((user) => {
       console.log('Logged in')
+
       // REDIRECT
       window.location = '/'
     })

@@ -4,7 +4,8 @@ import './App.css'
 import {
   BrowserRouter as Router,
   Route,
-  Switch
+  Switch,
+  Redirect
 } from 'react-router-dom'
 
 import * as firebase from 'firebase'
@@ -16,25 +17,24 @@ import Pictures from '../pictures/Pictures'
 import Presentation from '../presentation/Presentation'
 
 // NOT NEEEDED
-import AlbumsNew from '../albumsNew/AlbumsNew'
-import AlbumEdit from '../albumEdit/AlbumEdit'
-import AlbumSettings from '../albumSettings/AlbumSettings'
-import PicturesNew from '../picturesNew/PicturesNew'
+// import AlbumsNew from '../albumsNew/AlbumsNew'
+// import AlbumEdit from '../albumEdit/AlbumEdit'
+// import AlbumSettings from '../albumSettings/AlbumSettings'
+// import PicturesNew from '../picturesNew/PicturesNew'
 
 class App extends React.Component {
   constructor() {
     super()
     this.state = {
       albums: [],
-      pictures: []
+      pictures: [],
+      // currentUser: null
     }
   }
 
   componentDidMount() {
     const dbRef = firebase.database().ref()
     dbRef.on('value', snap => {
-      // const test = snap.child('pictures').val()
-      // console.log(test['1'])
       let albums = []
       snap.child('albums').forEach(album => {
         albums.push({
@@ -60,67 +60,110 @@ class App extends React.Component {
         pictures: pictures
       })
     })
+
+  //   firebase.auth().onAuthStateChanged((user) => {
+  //     if (user) {
+  //       console.log('firebaseAuth', user)
+  //       console.log('this', this)
+  //
+  //       this.setState({
+  //         currentUser: true
+  //       })
+  //
+  //       console.log('setting state', this.state.currentUser)
+  //
+  //     } else {
+  //       console.log('firebaseAuth', user)
+  //
+  //       this.setState({
+  //         currentUser: false
+  //       })
+  //
+  //       console.log('setting state', this.state.currentUser)
+  //     }
+  //   })
   }
 
   render () {
-    const renderMergedProps = (component, ...rest) => {
-      const finalProps = Object.assign({}, ...rest)
-      return (
-        React.createElement(component, finalProps)
-      )
-    }
 
-    const PropsRoute = ({ component, ...rest }) => {
-      return (
-        <Route {...rest} render={routeProps => {
-          return renderMergedProps(component, routeProps, rest)
-        }} />
-      )
-    }
-
-    // const PrivateRoute = ({ component, redirectTo, ...rest }) => {
-    //   return (
-    //     <Route {...rest} render={routeProps => {
-    //       return auth.loggedIn() ? (
-    //         renderMergedProps(component, routeProps, rest)
-    //       ) : (
-    //         <Redirect to={{
-    //           pathname: redirectTo,
-    //           state: { from: routeProps.location }
-    //         }} />
-    //       )
-    //     }} />
-    //   )
-    // }
+    // console.log('isloggedin', this.state.currentUser, !!firebase.auth().currentUser)
 
     return (
       <Router>
         <Switch>
 
-          <Route exact path={'/'} component={() => <Albums albums={this.state.albums} pictures={this.state.pictures} />} />
+          <PrivateRoute exact path={'/'} component={() => <Albums albums={this.state.albums} pictures={this.state.pictures} />} />
 
           <Route exact path={'/signup'} component={Signup}/>
 
           <Route exact path={'/login'} component={Login}/>
 
           {/* ===NOT USED=== */}
-          <Route exact path={'/albums_new'} component={AlbumsNew}/>
+          {/* <Route exact path={'/albums_new'} component={AlbumsNew}/>
           <Route exact path={'/albums/:id/edit'} component={AlbumEdit}/>
-          <Route exact path={'/albums/:id/settings'} component={AlbumSettings}/>
+          <Route exact path={'/albums/:id/settings'} component={AlbumSettings}/> */}
           {/* ===NOT USED=== */}
 
-          <Route exact path={'/albums/:id'} component={Pictures} />
+          <PrivateRoute exact path={'/albums/:id'} component={Pictures} />
 
-          <Route exact path={'/albums/:id/presentation'} component={Presentation} />
+          <PrivateRoute exact path={'/albums/:id/presentation'} component={Presentation} />
 
           {/* ===NOT USED=== */}
-          <PropsRoute exact path={'/albums/:id/pictures_new'} component={PicturesNew} pictures={this.state.pictures}/>
+          {/* <PropsRoute exact path={'/albums/:id/pictures_new'} component={PicturesNew} pictures={this.state.pictures}/> */}
           {/* ===NOT USED=== */}
 
         </Switch>
       </Router>
     )
   }
+}
+
+const isAuthenticated = () => {
+  console.log(localStorage)
+  if (!firebase.auth().currentUser) {
+    let hasLocalStorageUser = false
+    for (let key in localStorage) {
+      if (key.startsWith("firebase:authUser:")) {
+        hasLocalStorageUser = true
+        return true
+      }
+    }
+    if (!hasLocalStorageUser) {
+      return false
+    }
+  } else {
+    return true
+  }
+}
+
+const renderMergedProps = (component, ...rest) => {
+  const finalProps = Object.assign({}, ...rest)
+  return (
+    React.createElement(component, finalProps)
+  )
+}
+
+const PropsRoute = ({ component, ...rest }) => {
+  return (
+    <Route {...rest} render={routeProps => {
+      return renderMergedProps(component, routeProps, rest)
+    }} />
+  )
+}
+
+const PrivateRoute = ({ component, redirectTo, ...rest }) => {
+  return (
+    <Route {...rest} render={routeProps => {
+      return isAuthenticated() ? (
+        renderMergedProps(component, routeProps, rest)
+      ) : (
+        <Redirect to={{
+          pathname: '/login',
+          state: { from: routeProps.location }
+        }} />
+      )
+    }} />
+  )
 }
 
 export default App
