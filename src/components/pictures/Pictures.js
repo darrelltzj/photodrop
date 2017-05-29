@@ -430,6 +430,20 @@ class Pictures extends React.Component {
     }
   }
 
+  removePending (e, email) {
+    if (confirm('Removing this email. OK to proceed?')) {
+      e.preventDefault()
+      let updates = {}
+      updates['/albums/' + this.props.match.params.id + '/pending/' + email.email.replace('.',' ')] = null
+      updates['/pending/' + email.email.replace('.',' ') + '/' + this.props.match.params.id] = null
+      firebase.database().ref().update(updates).then(() => {
+        console.log('Successfully removed email')
+      }).catch((err) => {
+        alert(err)
+      })
+    }
+  }
+
   newPending (e) {
     e.preventDefault()
     console.log(e.target.querySelector(`#new-pending-${this.props.match.params.id}`).value)
@@ -457,8 +471,8 @@ class Pictures extends React.Component {
       } else {
         // If not, save email address to pending
         let updates = {}
-        updates['/pending/' + pendingEmail.replace('.', '-') + '/' + this.props.match.params.id] = true
-        updates['/albums/' + this.props.match.params.id + '/pending/' + pendingEmail.replace('.', '-')] = true
+        updates['/pending/' + pendingEmail.replace('.', ' ') + '/' + this.props.match.params.id] = true
+        updates['/albums/' + this.props.match.params.id + '/pending/' + pendingEmail.replace('.', ' ')] = true
         console.log('NO MATCH', updates)
         firebase.database().ref().update(updates)
       }
@@ -525,18 +539,22 @@ class Pictures extends React.Component {
       })
     }
 
-    // FIND PENDING top
-    let requests = []
-    for (var key in this.state.album['requests']) {
-      firebase.database().ref('/users/' + key).on('value', snapshot => {
-        if (snapshot.val()) {
-          requests.push(snapshot.val())
-        }
-      })
+    let pending = []
+    for (var key in this.state.album['pending']) {
+      pending.push(key.replace(' ', '.'))
     }
+    // FIND PENDING top
+    // let requests = []
+    // for (var key in this.state.album['requests']) {
+    //   firebase.database().ref('/users/' + key).on('value', snapshot => {
+    //     if (snapshot.val()) {
+    //       requests.push(snapshot.val())
+    //     }
+    //   })
+    // }
 
     // MAP INTO TABLE OR ALL USER TO STATE???
-    console.log(organisers, participants, requests)
+    console.log(organisers, participants, pending)
 
     let organisersList = organisers.map((user, index) => {
       return (
@@ -570,6 +588,19 @@ class Pictures extends React.Component {
               Remove User
             </Button>
           </td>}
+        </tr>
+      )
+    })
+
+    let pendingList = pending.map((email, index) => {
+      return (
+        <tr key={email}>
+          <td>{email}</td>
+          <td>
+            <Button bsStyle="danger" onClick={(e) => this.removePending(e, {email})}>
+              Remove
+            </Button>
+          </td>
         </tr>
       )
     })
@@ -853,14 +884,7 @@ class Pictures extends React.Component {
                       </tr>
                     </thead>
                     <tbody>
-                      <tr>
-                        <td>darrelltzj@gmail.com</td>
-                        <td>
-                          <Button bsStyle="danger">
-                            Remove
-                          </Button>
-                        </td>
-                      </tr>
+                      {pendingList}
                     </tbody>
                   </Table>
                 </div>

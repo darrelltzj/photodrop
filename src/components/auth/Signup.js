@@ -16,9 +16,23 @@ import {
   PageHeader
  } from 'react-bootstrap'
 
-import Navbar from '../navbar/Navbar'
+// import Navbar from '../navbar/Navbar'
 
 class Signup extends React.Component {
+  constructor() {
+    super()
+    this.state = {
+      pending: {}
+    }
+  }
+
+  componentDidMount () {
+    firebase.database().ref('/pending/').on('value', snapshot => {
+      this.setState({
+        pending: snapshot.val()
+      })
+    })
+  }
 
   signup(e) {
     e.preventDefault()
@@ -35,20 +49,34 @@ class Signup extends React.Component {
     } else {
 
       firebase.auth().createUserWithEmailAndPassword(emailSignup, passwordSignup)
-
       .then((user) => {
         user.updateProfile({displayName: nameSignup})
-        
+
+        let albumsPending = {}
+        let participating = {}
+        let updates = {}
+        if (emailSignup.replace('.', ' ') in this.state.pending) {
+          albumsPending = this.state.pending[emailSignup.replace('.', ' ')]
+        }
+        for (var key in albumsPending) {
+          participating[key] = true
+          updates['/albums/' + key + '/participants/' + user.uid] = true
+        }
+
         let newUser = {
           id: user.uid,
           name: nameSignup,
           email: user.email,
-          organising: [],
-          participating: [],
-          requested: []
+          organising: {},
+          participating: participating
         }
 
-        firebase.database().ref('/users/' + user.uid).set(newUser)
+        updates['/users/' + user.uid] = newUser
+        console.log('UPDATES', updates)
+
+        firebase.database().ref().update(updates)
+
+        // firebase.database().ref('/users/' + user.uid).set(newUser)
 
         firebase.auth().signInWithEmailAndPassword(user.email, passwordSignup)
         .then((user) => {

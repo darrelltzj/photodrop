@@ -16,7 +16,7 @@ import {
   PageHeader
  } from 'react-bootstrap'
 
-import Navbar from '../navbar/Navbar'
+// import Navbar from '../navbar/Navbar'
 
 class Login extends React.Component {
   login (e) {

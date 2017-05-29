@@ -94,9 +94,9 @@ class App extends React.Component {
 
           <PrivateRoute exact path={'/'} component={() => <Albums albums={this.state.albums} pictures={this.state.pictures} />} />
 
-          <Route exact path={'/signup'} component={Signup}/>
+          <PublicRoute exact path={'/signup'} component={Signup}/>
 
-          <Route exact path={'/login'} component={Login}/>
+          <PublicRoute exact path={'/login'} component={Login}/>
 
           {/* ===NOT USED=== */}
           {/* <Route exact path={'/albums_new'} component={AlbumsNew}/>
@@ -120,7 +120,7 @@ class App extends React.Component {
 
 const isAuthenticated = () => {
   console.log(localStorage)
-  
+
   if (!firebase.auth().currentUser) {
     let hasLocalStorageUser = false
     for (let key in localStorage) {
@@ -160,6 +160,21 @@ const PrivateRoute = ({ component, redirectTo, ...rest }) => {
       ) : (
         <Redirect to={{
           pathname: '/login',
+          state: { from: routeProps.location }
+        }} />
+      )
+    }} />
+  )
+}
+
+const PublicRoute = ({ component, redirectTo, ...rest }) => {
+  return (
+    <Route {...rest} render={routeProps => {
+      return !isAuthenticated() ? (
+        renderMergedProps(component, routeProps, rest)
+      ) : (
+        <Redirect to={{
+          pathname: '/',
           state: { from: routeProps.location }
         }} />
       )
