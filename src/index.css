@@ -50,10 +50,14 @@ body {
   /*background-color: beige;*/
 }
 
-.album-title, .album-live-comment-container {
+.album-request, .album-title, .album-live-comment-container {
   position: absolute;
   color: black;
   background: rgba(255, 255, 255, 0.8);
+}
+
+.album-request {
+  right: 0;
 }
 
 .album-image {

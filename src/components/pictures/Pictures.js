@@ -19,7 +19,8 @@ import {
   Image,
   Tabs,
   Tab,
-  Thumbnail
+  Thumbnail,
+  Table
  } from 'react-bootstrap'
 
 import Masonry from 'react-masonry-component'
@@ -40,7 +41,8 @@ class Pictures extends React.Component {
       showParticipants: false,
       currentUserUid: null,
       organiser: false,
-      participant: false
+      participant: false,
+      isOwner: false
     }
   }
 
@@ -95,6 +97,12 @@ class Pictures extends React.Component {
       this.setState({
         album: album,
       })
+      // console.log('owner!!!',snapshot.val().owner)
+      if (firebase.auth().currentUser.uid == snapshot.val().owner) {
+        this.setState({
+          isOwner: true
+        })
+      }
     })
 
     firebase.database().ref('/pictures/' + this.props.match.params.id).on('value', snapshot => {
@@ -363,6 +371,55 @@ class Pictures extends React.Component {
     })
   }
 
+  isOwner(user) {
+    if (user.id == this.state.album.owner) {
+      return true
+    } else {
+      return false
+    }
+  }
+
+  isOrganiser(user) {
+    if (user.id in this.state.album.organisers) {
+      return true
+    } else {
+      return false
+    }
+  }
+
+  removeAdmin (e, user) {
+    e.preventDefault()
+    console.log('removing',user)
+  }
+
+  makeAdmin (e, user) {
+    e.preventDefault()
+    console.log('making admin',user)
+    let updates = {}
+    updates['/albums/' + this.props.match.params.id + '/organisers/' + user.user.id] = true
+    updates['/users/' + user.user.id + '/organising/' + this.props.match.params.id] = true
+
+    firebase.database().ref().update(updates).then(() => {
+      console.log('Successfully made user admin')
+    }).catch((err) => {
+      alert(err)
+    })
+  }
+
+  removeParticipant (e, user) {
+    if (confirm('Removing this user is irriversible. OK to proceed?')) {
+      e.preventDefault()
+      let updates = {}
+      updates['/albums/' + this.props.match.params.id + '/participants/' + user.user.id] = null
+      updates['/users/' + user.user.id + '/participating/' + this.props.match.params.id] = null
+      firebase.database().ref().update(updates).then(() => {
+        console.log('Successfully removed user')
+      }).catch((err) => {
+        alert(err)
+      })
+    }
+  }
+
   render() {
     const masonryOptions = {
         transitionDuration: 0.8
@@ -418,6 +475,7 @@ class Pictures extends React.Component {
       })
     }
 
+    // FIND PENDING top
     let requests = []
     for (var key in this.state.album['requests']) {
       firebase.database().ref('/users/' + key).on('value', snapshot => {
@@ -430,57 +488,95 @@ class Pictures extends React.Component {
     // MAP INTO TABLE OR ALL USER TO STATE???
     console.log(organisers, participants, requests)
 
+    let organisersList = organisers.map((user, index) => {
+      return (
+        <tr key={user.id}>
+          <td>{user.name}</td>
+          <td>{user.email}</td>
+          {!this.isOwner(user) &&
+            <td>
+              <Button bsStyle="danger" onClick={(e) => this.removeAdmin(e, {user})}>
+                Remove Admin
+              </Button>
+            </td>}
+        </tr>
+      )
+    })
+
+    let participantsList = participants.map((user, index) => {
+      return (
+        <tr key={user.id}>
+          <td>{user.name}</td>
+          <td>{user.email}</td>
+          {!this.isOwner(user) || this.isOrganiser(user) &&
+          <td>
+            <Button bsStyle="primary" onClick={(e) => this.makeAdmin(e, {user})}>
+              Make Admin
+            </Button>
+          </td>}
+          {!this.isOwner(user) || this.isOrganiser(user) &&
+          <td>
+            <Button bsStyle="danger" onClick={(e) => this.removeParticipant(e, {user})}>
+              Remove User
+            </Button>
+          </td>}
+        </tr>
+      )
+    })
+
     return (
       <div>
         <Navbar />
         <Col sm={8} className="albums-display">
-        <div>
-          <PageHeader>
-            <strong>{this.state.album.title}</strong>{' '}
-            <small>{this.state.album.description}</small>
-          </PageHeader>
-        </div>
+          <div>
+            <PageHeader>
+              <strong>{this.state.album.title}</strong>{' '}
+            </PageHeader>
+            <p>{this.state.album.description}</p>
+          </div>
 
-        <div>
-          <Form horizontal onChange={(e) => this.search(e)}>
-            <FormGroup bsSize="large">
-              <Col sm={12}>
-                <FormControl type='text' placeholder='Search Pictures of Author' />
-              </Col>
-            </FormGroup>
-          </Form>
-        </div>
+          <div>
+            <Form horizontal onChange={(e) => this.search(e)}>
+              <FormGroup bsSize="large">
+                <Col sm={12}>
+                  <FormControl type='text' placeholder='Search Pictures of Author' />
+                </Col>
+              </FormGroup>
+            </Form>
+          </div>
 
-        <ButtonToolbar>
-          <Button bsStyle="primary" onClick={(e) => this.open(e, 'addNewPicture')}>
-            Add Picture
-          </Button>
-          <Button bsStyle="primary" onClick={(e) => this.open(e, 'showMessages')}>
-            Messages
-          </Button>
-          <Button onClick={(e) => this.open(e, 'editDetails')}>
-            Edit Details
-          </Button>
-          <Button onClick={(e) => this.open(e, 'pictureSettings')}>
-            Picture Settings
-          </Button>
-          <Button onClick={(e) => this.open(e, 'participants')}>
-            Participants
-          </Button>
-        </ButtonToolbar>
+          <ButtonToolbar>
+            <Button bsStyle="primary" onClick={(e) => this.open(e, 'addNewPicture')}>
+              Add Picture
+            </Button>
+            <Button bsStyle="primary" onClick={(e) => this.open(e, 'showMessages')}>
+              Messages
+            </Button>
+            {this.state.organiser &&
+              <Button onClick={(e) => this.open(e, 'editDetails')}>
+                Edit Details
+              </Button>}
+            {this.state.organiser &&
+              <Button onClick={(e) => this.open(e, 'pictureSettings')}>
+                Picture Settings
+              </Button>}
+            {this.state.organiser &&
+              <Button onClick={(e) => this.open(e, 'participants')}>
+                Users
+              </Button>}
+          </ButtonToolbar>
 
-        <div className='picture-content-container'>
-          <Masonry
-            className={'masonry'}
-            elementType={'div'}
-            options={masonryOptions}
-            disableImagesLoaded={false}
-            updateOnEachImageLoad={false}
-              >
-            {pictureList}
-          </Masonry>
-        </div>
-
+          <div className='picture-content-container'>
+            <Masonry
+              className={'masonry'}
+              elementType={'div'}
+              options={masonryOptions}
+              disableImagesLoaded={false}
+              updateOnEachImageLoad={false}
+                >
+              {pictureList}
+            </Masonry>
+          </div>
         </Col>
 
         <Modal show={this.state.showAddNewPicture} onHide={(e) => this.close(e, 'showAddNewPicture')}>
@@ -606,8 +702,8 @@ class Pictures extends React.Component {
               Open Presentation Screen
             </Button>
             <div>
-              <Tabs defaultActiveKey={1}>
-                <Tab eventKey={1} title="Pictures">
+              <Tabs defaultActiveKey={'pictures'}>
+                <Tab eventKey={'pictures'} title="Pictures">
                   <div className="settings-images">
                     <Col sm={4}>
                     <div>
@@ -623,7 +719,7 @@ class Pictures extends React.Component {
                   </div>
                 </Tab>
 
-                <Tab eventKey={2} title="Audio">
+                <Tab eventKey={'audio'} title="Audio">
                   <div>
                     <div>
                       Audio Name
@@ -645,9 +741,80 @@ class Pictures extends React.Component {
 
         <Modal bsSize="large" show={this.state.showParticipants} onHide={(e) => this.close(e, 'showParticipants')}>
           <Modal.Header closeButton>
-            <Modal.Title>Participants</Modal.Title>
+            <Modal.Title>Users</Modal.Title>
           </Modal.Header>
           <Modal.Body>
+
+            <Tabs defaultActiveKey={'organisers'}>
+              <Tab eventKey={'organisers'} title="Organisers">
+                <div>
+                  <Table striped bordered condensed hover>
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {organisersList}
+                    </tbody>
+                  </Table>
+                </div>
+              </Tab>
+
+              <Tab eventKey={'participants'} title="Participants">
+                <div>
+                  <Table striped bordered condensed hover>
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th></th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {participantsList}
+                    </tbody>
+                  </Table>
+                </div>
+              </Tab>
+
+              <Tab eventKey={'pending'} title="Pending">
+                <div>
+                  <div>
+                    <Form inline>
+                      <FormGroup controlId="formInlineEmail">
+                        <FormControl type="email" placeholder="jane.doe@example.com" />
+                      </FormGroup>
+                      {' '}
+                      <Button type="submit" bsStyle="primary">
+                        Add User
+                      </Button>
+                    </Form>
+                  </div>
+                  <Table striped bordered condensed hover>
+                    <thead>
+                      <tr>
+                        <th>Email</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>darrelltzj@gmail.com</td>
+                        <td>
+                          <Button bsStyle="danger">
+                            Remove
+                          </Button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </Table>
+                </div>
+              </Tab>
+            </Tabs>
 
           </Modal.Body>
           <Modal.Footer>

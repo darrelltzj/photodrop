@@ -138,8 +138,8 @@ class Albums extends React.Component {
   newRequest (e, album) {
     e.preventDefault()
     let updates = {}
-    updates['/albums/' + album.id + '/requests/' + firebase.auth().currentUser.uid] = true
-    updates['/users/' + firebase.auth().currentUser.uid + '/requesting/' + album.id] = true
+    updates['/albums/' + album.id + '/participants/' + firebase.auth().currentUser.uid] = true
+    updates['/users/' + firebase.auth().currentUser.uid + '/participating/' + album.id] = true
     firebase.database().ref().update(updates).then(() => {
       console.log('Updated Request')
     }).catch((err) => {
@@ -150,8 +150,8 @@ class Albums extends React.Component {
   offRequest (e, album) {
     e.preventDefault()
     let updates = {}
-    updates['/albums/' + album.id + '/requests/' + firebase.auth().currentUser.uid] = null
-    updates['/users/' + firebase.auth().currentUser.uid + '/requesting/' + album.id] = null
+    updates['/albums/' + album.id + '/participants/' + firebase.auth().currentUser.uid] = null
+    updates['/users/' + firebase.auth().currentUser.uid + '/participating/' + album.id] = null
     firebase.database().ref().update(updates).then(() => {
       console.log('Updated Request')
     }).catch((err) => {
@@ -194,9 +194,13 @@ class Albums extends React.Component {
             <div className="album-content-container">
               <div className="album-image-container">
 
-                  <h2 className="album-title">
-                    {album.title}
-                  </h2>
+                <h2 className="album-title">
+                  {album.title}
+                </h2>
+
+                <Button type="submit" bsStyle="link" onClick={(e) => this.offRequest(e, album)} className="album-request">
+                  Unfollow
+                </Button>
 
                 <Link to={`/albums/${album.id}`}>
                   <Image src={pictureList[0].url} responsive className="album-image"/>
@@ -249,6 +253,7 @@ class Albums extends React.Component {
     }
 
     // NEED TO FILTER REQUESTS
+    // MAY NOT NEED THIS !!!
     let albumsRequested = []
     if (this.state.albums.length > 0) {
       albumsRequested = this.state.albums.filter((album, index) => {
@@ -319,10 +324,20 @@ class Albums extends React.Component {
                 <h2 className="album-title">
                   {album.title}
                 </h2>
+
+                <Button type="submit" bsStyle="link" onClick={(e) => this.newRequest(e, album)} className="album-request">
+                  Request
+                </Button>
+
                 <Image src={pictureList[0].url} responsive className="album-image"/>
+
+                <div className="album-live-comment-container">
+                  {album.description}
+                </div>
+
               </div>
 
-              <div className="request-form-container">
+              {/* <div className="request-form-container">
                 <Form className="request-form" onSubmit={(e) => this.newRequest(e, album)}>
                   <FormGroup>
                     <Col sm={1}>
@@ -332,7 +347,7 @@ class Albums extends React.Component {
                     </Col>
                   </FormGroup>
                 </Form>
-              </div>
+              </div> */}
 
             </div>
           </div>
