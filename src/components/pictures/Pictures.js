@@ -44,7 +44,9 @@ class Pictures extends React.Component {
       currentUserUid: null,
       organiser: false,
       participant: false,
-      isOwner: false
+      isOwner: false,
+      image: null,
+      imagePath: null
     }
   }
 
@@ -176,57 +178,112 @@ class Pictures extends React.Component {
 
     // get file
     let image = e.target.querySelector('#imageUpload-' + this.props.match.params.id).files[0]
-    // Set new Picture ID
-    let newPictureKey = firebase.database().ref().child('pictures').push().key
 
-    // create storage ref
-    // Change Picture Name to ID
-    let imageNameArray = image.name.split('.')
-    let type = imageNameArray[imageNameArray.length - 1]
-    let imageRef = firebase.storage().ref('images/' + newPictureKey + '.' + type)
+    var reader = new window.FileReader()
+    reader.addEventListener('load', () => {
+      let self = this
+      fixOrientation(reader.result, { image: true }, function (fixed, newImage) {
 
-    // CHECK FOR PICTURE FILES ONLY
-
-    //upload file
-    let task = imageRef.put(image)
-    // update progress
-    task.on('state_changed',
-      function progress(snapshot) {
-        console.log('Progress: ', snapshot)
-      },
-      function error(err) {
-        console.log('Error: ', err)
-      },
-      function complete() {
-        console.log('Completed: ', task)
-        imageRef.getDownloadURL().then((url) => {
-          // GET Current Object of Album inside Pictures
-          let albumInPictures = {}
-          firebase.database().ref('/pictures/' + this.props.match.params.id).once('value', snapshot => {
-            albumInPictures = snapshot.val() || {}
-          })
-          // Update Current Object of Album inside Pictures
-          albumInPictures[newPictureKey] = {
-            id: newPictureKey,
-            url: url,
-            uid: firebase.auth().currentUser.uid,
-            lastUpdate: Date.now()
-          }
-
-          // GET Current Object of Pictures inside Album
-          let picturesInAlbum = this.state.album.pictures || {}
-          // Update Current Object of Pictures inside Album
-          picturesInAlbum[newPictureKey] = true
-
-          let updates = {}
-          updates['/pictures/' + this.props.match.params.id] = albumInPictures
-          updates['/albums/' + this.props.match.params.id + '/pictures/'] = picturesInAlbum
-
-          firebase.database().ref().update(updates)
-          // REDIRECT
+        console.log('fixed', fixed)
+        console.log('newImage', newImage)
+        self.setState({
+          image: fixed,
+          imagePath: newImage.src
         })
-      }.bind(this)
-    )
+
+        // Set new Picture ID
+        let newPictureKey = firebase.database().ref().child('pictures').push().key
+
+        // create storage ref
+        let imageRef = firebase.storage().ref('images/' + newPictureKey)
+
+        //upload file
+        let task = imageRef.putString(newImage.src, 'data_url').then(function(snapshot) {
+
+          console.log('Uploaded a data_url string!',snapshot)
+
+          imageRef.getDownloadURL().then((url) => {
+            // GET Current Object of Album inside Pictures
+            let albumInPictures = {}
+            firebase.database().ref('/pictures/' + self.props.match.params.id).once('value', snapshot => {
+              albumInPictures = snapshot.val() || {}
+            })
+            // Update Current Object of Album inside Pictures
+            albumInPictures[newPictureKey] = {
+              id: newPictureKey,
+              url: url,
+              uid: firebase.auth().currentUser.uid,
+              lastUpdate: Date.now()
+            }
+            // GET Current Object of Pictures inside Album
+            let picturesInAlbum = self.state.album.pictures || {}
+            // Update Current Object of Pictures inside Album
+            picturesInAlbum[newPictureKey] = true
+
+            let updates = {}
+            updates['/pictures/' + self.props.match.params.id] = albumInPictures
+            updates['/albums/' + self.props.match.params.id + '/pictures/'] = picturesInAlbum
+
+            firebase.database().ref().update(updates)
+          })
+
+        })
+
+      })
+    })
+    reader.readAsDataURL(image)
+
+    // // Set new Picture ID
+    // let newPictureKey = firebase.database().ref().child('pictures').push().key
+    // // create storage ref
+    // // Change Picture Name to ID
+    // let imageNameArray = image.name.split('.')
+    // let type = imageNameArray[imageNameArray.length - 1]
+    // let imageRef = firebase.storage().ref('images/' + newPictureKey + '.' + type)
+    //
+    // // CHECK FOR PICTURE FILES ONLY
+    //
+    // //upload file
+    // let task = imageRef.put(image)
+    // // update progress
+    // task.on('state_changed',
+    //   function progress(snapshot) {
+    //     console.log('Progress: ', snapshot)
+    //   },
+    //   function error(err) {
+    //     console.log('Error: ', err)
+    //   },
+    //   function complete() {
+    //     console.log('Completed: ', task)
+    //     imageRef.getDownloadURL().then((url) => {
+    //       // GET Current Object of Album inside Pictures
+    //       let albumInPictures = {}
+    //       firebase.database().ref('/pictures/' + this.props.match.params.id).once('value', snapshot => {
+    //         albumInPictures = snapshot.val() || {}
+    //       })
+    //       // Update Current Object of Album inside Pictures
+    //       albumInPictures[newPictureKey] = {
+    //         id: newPictureKey,
+    //         url: url,
+    //         uid: firebase.auth().currentUser.uid,
+    //         lastUpdate: Date.now()
+    //       }
+    //
+    //       // GET Current Object of Pictures inside Album
+    //       let picturesInAlbum = this.state.album.pictures || {}
+    //       // Update Current Object of Pictures inside Album
+    //       picturesInAlbum[newPictureKey] = true
+    //
+    //       let updates = {}
+    //       updates['/pictures/' + this.props.match.params.id] = albumInPictures
+    //       updates['/albums/' + this.props.match.params.id + '/pictures/'] = picturesInAlbum
+    //
+    //       firebase.database().ref().update(updates)
+    //       // REDIRECT
+    //     })
+    //   }.bind(this)
+    // )
+
   }
 
   editAlbumDetail (e) {
@@ -601,6 +658,7 @@ class Pictures extends React.Component {
             <Modal.Title>Add New Picture</Modal.Title>
           </Modal.Header>
           <Modal.Body>
+            <img src={this.state.imagePath} />
             <Form horizontal onSubmit={(e) => this.uploadImage(e)}>
 
               <FormGroup bsSize="large">
