@@ -44,9 +44,7 @@ class Pictures extends React.Component {
       currentUserUid: null,
       organiser: false,
       participant: false,
-      isOwner: false,
-      // image: null,
-      // imagePath: null
+      isOwner: false
     }
   }
 
@@ -175,14 +173,14 @@ class Pictures extends React.Component {
 
   uploadImage (e) {
     e.preventDefault()
-    // get file
+    // Get file
     let image = e.target.querySelector('#imageUpload-' + this.props.match.params.id).files[0]
 
     var reader = new window.FileReader()
     reader.addEventListener('load', () => {
       let self = this
-      fixOrientation(reader.result, { image: true }, function (fixed, newImage) {
 
+      fixOrientation(reader.result, { image: true }, function (fixed, newImage) {
         // Set new Picture ID
         let newPictureKey = firebase.database().ref().child('pictures').push().key
 
@@ -191,98 +189,38 @@ class Pictures extends React.Component {
 
         // Upload file
         let uploadTask = imageRef.putString(newImage.src, 'data_url')
-        // .then(function(snapshot) {
-        //   console.log('Uploaded a data_url string!',snapshot)
-          // imageRef.getDownloadURL().then((url) => {
-          //   // GET Current Object of Album inside Pictures
-          //   let albumInPictures = {}
-          //   firebase.database().ref('/pictures/' + self.props.match.params.id).once('value', snapshot => {
-          //     albumInPictures = snapshot.val() || {}
-          //   })
-          //
-          //   // Update Current Object of Album inside Pictures
-          //   albumInPictures[newPictureKey] = {
-          //     id: newPictureKey,
-          //     url: url,
-          //     uid: firebase.auth().currentUser.uid,
-          //     lastUpdate: Date.now()
-          //   }
-          //
-          //   let updates = {}
-          //   updates['/pictures/' + self.props.match.params.id] = albumInPictures
-          //   updates['/albums/' + self.props.match.params.id + '/pictures/' + newPictureKey] = true
-          //
-          //   firebase.database().ref().update(updates)
-          // })
-        // })
 
+        // Check progress and completion
         uploadTask.on('state_changed', function (snapshot) {
           let percent = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
           console.log('Upload is ' + percent + '% done')
+          // DO THE PROGRESS BAR HERE (State)
+        }, function (error) {
+          alert(error)
+        }, function () {
+          // console.log('COMPLETED!')
+          let url = uploadTask.snapshot.downloadURL
+          // console.log('URL', url, uploadTask.snapshot)
 
-          if (percent == 100) {
-            imageRef.getDownloadURL().then((url) => {
-              // let url = uploadTask.snapshot.downloadURL
-              console.log('URL', url, uploadTask.snapshot)
+          let albumInPictures = {}
+          firebase.database().ref('/pictures/' + self.props.match.params.id).once('value', snapshot => {
+            albumInPictures = snapshot.val() || {}
+          })
 
-              let albumInPictures = {}
-
-              firebase.database().ref('/pictures/' + self.props.match.params.id).once('value', snapshot => {
-                albumInPictures = snapshot.val() || {}
-              })
-
-              // Update Current Object of Album inside Pictures
-              albumInPictures[newPictureKey] = {
-                id: newPictureKey,
-                url: url,
-                uid: firebase.auth().currentUser.uid,
-                lastUpdate: Date.now()
-              }
-
-              let updates = {}
-              updates['/pictures/' + self.props.match.params.id] = albumInPictures
-              updates['/albums/' + self.props.match.params.id + '/pictures/' + newPictureKey] = true
-
-              console.log('updates', updates)
-
-              firebase.database().ref().update(updates)
-            })
+          // Update Current Object of Album inside Pictures
+          albumInPictures[newPictureKey] = {
+            id: newPictureKey,
+            url: url,
+            uid: firebase.auth().currentUser.uid,
+            lastUpdate: Date.now()
           }
 
-        }), function (error) {
-
-          alert(error)
-
-        }, function () {
-          console.log('COMPLETED!')
-
-          imageRef.getDownloadURL().then((url) => {
-            // let url = uploadTask.snapshot.downloadURL
-            console.log('URL', url, uploadTask.snapshot)
-
-            let albumInPictures = {}
-
-            firebase.database().ref('/pictures/' + self.props.match.params.id).once('value', snapshot => {
-              albumInPictures = snapshot.val() || {}
-            })
-
-            // Update Current Object of Album inside Pictures
-            albumInPictures[newPictureKey] = {
-              id: newPictureKey,
-              url: url,
-              uid: firebase.auth().currentUser.uid,
-              lastUpdate: Date.now()
-            }
-
-            let updates = {}
-            updates['/pictures/' + self.props.match.params.id] = albumInPictures
-            updates['/albums/' + self.props.match.params.id + '/pictures/' + newPictureKey] = true
-
-            console.log('updates', updates)
-
-            firebase.database().ref().update(updates)
-          })
-        }
+          let updates = {}
+          updates['/pictures/' + self.props.match.params.id] = albumInPictures
+          updates['/albums/' + self.props.match.params.id + '/pictures/' + newPictureKey] = true
+          // console.log('updates', updates)
+          firebase.database().ref().update(updates)
+        })
 
       })
     })
@@ -452,7 +390,7 @@ class Pictures extends React.Component {
   removeAdmin (e, user) {
     if (confirm('Removing this user as an organiser. OK to proceed?')) {
       e.preventDefault()
-      console.log('removing',user)
+      // console.log('removing',user)
       let updates = {}
       updates['/albums/' + this.props.match.params.id + '/organisers/' + user.user.id] = null
       updates['/users/' + user.user.id + '/organising/' + this.props.match.params.id] = null
@@ -490,6 +428,41 @@ class Pictures extends React.Component {
         alert(err)
       })
     }
+  }
+
+  newPending (e) {
+    e.preventDefault()
+    console.log(e.target.querySelector(`#new-pending-${this.props.match.params.id}`).value)
+    let pendingEmail = e.target.querySelector(`#new-pending-${this.props.match.params.id}`).value
+    // Check if user exists
+    firebase.database().ref('/users/').once('value').then(snapshot => {
+      let users = []
+      snapshot.forEach(user => {
+        users.push(user.val())
+      })
+      console.log('pushed', users)
+      let filteredList = users.filter(user => {
+        return user.email == pendingEmail
+      })
+      console.log('filtered', filteredList)
+      // If yes, add to participant
+      if (filteredList.length > 0) {
+        // let existingParticipants = this.state.album.participants
+        // existingParticipants[filteredList[0].id] = true
+        let updates = {}
+        updates['/albums/' + this.props.match.params.id + '/participants/' + filteredList[0].id] = true
+        updates['/users/' + filteredList[0].id + '/participating/' + this.props.match.params.id] = true
+        console.log('MATCH', updates)
+        firebase.database().ref().update(updates)
+      } else {
+        // If not, save email address to pending
+        let updates = {}
+        updates['/pending/' + pendingEmail.replace('.', '-') + '/' + this.props.match.params.id] = true
+        updates['/albums/' + this.props.match.params.id + '/pending/' + pendingEmail.replace('.', '-')] = true
+        console.log('NO MATCH', updates)
+        firebase.database().ref().update(updates)
+      }
+    })
   }
 
   render() {
@@ -861,10 +834,10 @@ class Pictures extends React.Component {
 
               <Tab eventKey={'pending'} title="Pending">
                 <div>
-                  <div>
-                    <Form inline>
-                      <FormGroup controlId="formInlineEmail">
-                        <FormControl type="email" placeholder="jane.doe@example.com" />
+                  <div className="add-pending">
+                    <Form inline onSubmit={(e) => this.newPending(e)}>
+                      <FormGroup>
+                        <FormControl type="email" placeholder="jane.doe@example.com" id={`new-pending-${this.props.match.params.id}`}/>
                       </FormGroup>
                       {' '}
                       <Button type="submit" bsStyle="primary">
