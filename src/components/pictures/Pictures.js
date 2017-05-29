@@ -27,6 +27,8 @@ import Masonry from 'react-masonry-component'
 
 import Navbar from '../navbar/Navbar'
 
+var fixOrientation = require('fix-orientation')
+
 class Pictures extends React.Component {
   constructor(props) {
     super(props)
@@ -388,17 +390,26 @@ class Pictures extends React.Component {
   }
 
   removeAdmin (e, user) {
-    e.preventDefault()
-    console.log('removing',user)
+    if (confirm('Removing this user as an organiser. OK to proceed?')) {
+      e.preventDefault()
+      console.log('removing',user)
+      let updates = {}
+      updates['/albums/' + this.props.match.params.id + '/organisers/' + user.user.id] = null
+      updates['/users/' + user.user.id + '/organising/' + this.props.match.params.id] = null
+      firebase.database().ref().update(updates).then(() => {
+        console.log('Successfully removed admin')
+        window.location = '/albums/' + this.props.match.params.id
+      }).catch((err) => {
+        alert(err)
+      })
+    }
   }
 
   makeAdmin (e, user) {
     e.preventDefault()
-    console.log('making admin',user)
     let updates = {}
     updates['/albums/' + this.props.match.params.id + '/organisers/' + user.user.id] = true
     updates['/users/' + user.user.id + '/organising/' + this.props.match.params.id] = true
-
     firebase.database().ref().update(updates).then(() => {
       console.log('Successfully made user admin')
     }).catch((err) => {
@@ -414,6 +425,7 @@ class Pictures extends React.Component {
       updates['/users/' + user.user.id + '/participating/' + this.props.match.params.id] = null
       firebase.database().ref().update(updates).then(() => {
         console.log('Successfully removed user')
+        window.location = '/albums/' + this.props.match.params.id
       }).catch((err) => {
         alert(err)
       })
@@ -426,9 +438,14 @@ class Pictures extends React.Component {
     }
 
     let pictureList = this.state.pictures.map((picture, index) => {
+
       return (
         <div key={picture.id} className="picture-container">
+
+          {/* {img} */}
+
           <Image src={picture.url} className="album-image" rounded/>
+
           <div className="picture-image-cover-container">
             <div className="picture-image-delete-container">
               <Button onClick={(e) => this.deletePicture(e, picture.id)} bsStyle="link">
@@ -496,7 +513,7 @@ class Pictures extends React.Component {
           {!this.isOwner(user) &&
             <td>
               <Button bsStyle="danger" onClick={(e) => this.removeAdmin(e, {user})}>
-                Remove Admin
+                Remove Organiser
               </Button>
             </td>}
         </tr>
@@ -508,13 +525,13 @@ class Pictures extends React.Component {
         <tr key={user.id}>
           <td>{user.name}</td>
           <td>{user.email}</td>
-          {!this.isOwner(user) || this.isOrganiser(user) &&
+          {(!this.isOwner(user) && !this.isOrganiser(user)) &&
           <td>
             <Button bsStyle="primary" onClick={(e) => this.makeAdmin(e, {user})}>
-              Make Admin
+              Set as Organiser
             </Button>
           </td>}
-          {!this.isOwner(user) || this.isOrganiser(user) &&
+          {(!this.isOwner(user) && !this.isOrganiser(user)) &&
           <td>
             <Button bsStyle="danger" onClick={(e) => this.removeParticipant(e, {user})}>
               Remove User
@@ -635,6 +652,7 @@ class Pictures extends React.Component {
           </Modal.Footer>
         </Modal>
 
+        {this.state.organiser &&
         <Modal show={this.state.showEditDetails} onHide={(e) => this.close(e, 'showEditDetails')}>
           <Modal.Header closeButton>
             <Modal.Title>Edit Details</Modal.Title>
@@ -685,8 +703,9 @@ class Pictures extends React.Component {
               Cancel
             </Button>
           </Modal.Footer>
-        </Modal>
+        </Modal>}
 
+        {this.state.organiser &&
         <Modal bsSize="large" show={this.state.showPictureSettings} onHide={(e) => this.close(e, 'showPictureSettings')}>
           <Modal.Header closeButton>
             <Modal.Title>Picture Settings</Modal.Title>
@@ -737,8 +756,9 @@ class Pictures extends React.Component {
           <Modal.Footer>
             <Button onClick={(e) => this.close(e, 'showPictureSettings')}>Cancel</Button>
           </Modal.Footer>
-        </Modal>
+        </Modal>}
 
+        {this.state.organiser &&
         <Modal bsSize="large" show={this.state.showParticipants} onHide={(e) => this.close(e, 'showParticipants')}>
           <Modal.Header closeButton>
             <Modal.Title>Users</Modal.Title>
@@ -820,31 +840,11 @@ class Pictures extends React.Component {
           <Modal.Footer>
             <Button onClick={(e) => this.close(e, 'showParticipants')}>Cancel</Button>
           </Modal.Footer>
-        </Modal>
-
-        {/* <div>
-          <Link to={`/albums/${this.props.match.params.id}/requests`}>Requests</Link>{' | '}
-          <Link to={`/albums/${this.props.match.params.id}/settings`}>Settings</Link>{' | '}
-          <Link to={`/albums/${this.props.match.params.id}/live`}>Live</Link>
-        </div>
-
-        <div>
-          <Link to={`/albums/${this.state.albums.map(album => {
-            return album.id
-          })}/pictures_new`}>
-            <button>
-              +
-            </button>
-          </Link>
-        </div> */}
+        </Modal>}
 
       </div>
     )
   }
-
-  // checkUserType() {
-  //   console.log('reading', firebase.auth().currentUser.uid)
-  // }
 
 }
 
