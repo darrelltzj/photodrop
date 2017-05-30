@@ -188,6 +188,7 @@ class Pictures extends React.Component {
 
     var reader = new window.FileReader()
     reader.addEventListener('load', () => {
+    // reader.addEventListener('change', () => {
       let self = this
 
       fixOrientation(reader.result, { image: true }, function (fixed, newImage) {
@@ -247,7 +248,7 @@ class Pictures extends React.Component {
         })
 
       })
-    })
+    }, false)
     reader.readAsDataURL(image)
   }
 
@@ -790,48 +791,27 @@ class Pictures extends React.Component {
             <Modal.Title>Drop in a Photo</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <Tabs defaultActiveKey={'capture'} id="uncontrolled-tab-example">
-              <Tab eventKey={'capture'} title="Capture Image">
-                <br></br>
-                <Form horizontal onSubmit={(e) => this.uploadImage(e)}>
-                  {this.state.uploadingImage &&
-                    <div>
-                      <span>
-                        Uploading Image. Please wait.
-                      </span>
-                      <ProgressBar active now={this.state.uploadProgress} label={`${this.state.uploadProgress}%`} />
-                    </div>}
-                  <FormGroup bsSize="large">
-                    <Col sm={12}>
-                      <FormControl type='file' id={`imageUpload-${this.props.match.params.id}`} accept='image/*' capture='camera' />
-                    </Col>
-                  </FormGroup>
-                  <Button bsStyle="primary" type="submit">
-                    Submit
-                  </Button>
-                </Form>
-              </Tab>
-              <Tab eventKey={'upload'} title="Upload from Storage">
-                <br></br>
-                <Form horizontal onSubmit={(e) => this.uploadImage(e)}>
-                  {this.state.uploadingImage &&
-                    <div>
-                      <span>
-                        Uploading Image. Please wait.
-                      </span>
-                      <ProgressBar active now={this.state.uploadProgress} label={`${this.state.uploadProgress}%`} />
-                    </div>}
-                  <FormGroup bsSize="large">
-                    <Col sm={12}>
-                      <FormControl type='file' id={`imageUpload-${this.props.match.params.id}`} accept='image/*' />
-                    </Col>
-                  </FormGroup>
-                  <Button bsStyle="primary" type="submit">
-                    Submit
-                  </Button>
-                </Form>
-              </Tab>
-            </Tabs>
+            {this.state.uploadingImage &&
+              <div>
+                <span>
+                  Uploading Image. Please wait.
+                </span>
+                <ProgressBar active now={this.state.uploadProgress} label={`${this.state.uploadProgress}%`} />
+              </div>}
+
+              <Form horizontal onSubmit={(e) => this.uploadImage(e)}>
+                <FormGroup bsSize="large">
+                  <Col sm={12}>
+                    <FormControl type='file' id={`imageUpload-${this.props.match.params.id}`} accept='image/*' />
+                    {/* <FormControl type='file' id={`imageUpload-${this.props.match.params.id}`} accept='image/*' capture='camera' /> */}
+                  </Col>
+                </FormGroup>
+
+                <br></br><br></br>
+                <Button bsStyle="primary" type="submit">
+                  Submit
+                </Button>
+              </Form>
           </Modal.Body>
           <Modal.Footer>
             <Button onClick={(e) => this.close(e, 'showAddNewPicture')}>Cancel</Button>
