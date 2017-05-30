@@ -48,6 +48,7 @@ body {
   height: 26vw;
   position: relative;
   /*background-color: beige;*/
+  overflow: hidden;
 }
 
 .album-request, .album-title, .album-live-comment-container {
@@ -63,8 +64,14 @@ body {
 .album-image {
   display:block;
   margin:auto;
-  max-width: 100%;
-  max-height: 100%;
+  /*max-width: 100%;
+  max-height: 100%;*/
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: auto;
 }
 
 img {

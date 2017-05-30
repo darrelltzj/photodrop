@@ -47,8 +47,9 @@ class Pictures extends React.Component {
       organiser: false,
       participant: false,
       isOwner: false,
-      uploadingImage: false,
-      uploadProgress: 0
+      uploading: false,
+      uploadProgress: 0,
+      audio: []
     }
   }
 
@@ -136,6 +137,17 @@ class Pictures extends React.Component {
         messages: messages
       })
     })
+
+    firebase.database().ref('/audio/' + this.props.match.params.id).on('value', snapshot => {
+      let audio = []
+      snapshot.forEach(aud => {
+        audio.push(aud.val())
+      })
+
+      this.setState({
+        audio: audio
+      })
+    })
   }
 
   open (e, selection) {
@@ -208,7 +220,7 @@ class Pictures extends React.Component {
           console.log('Upload is ' + percent + '% done')
           // Progress Bar (State)
           self.setState({
-            uploadingImage: true,
+            uploading: true,
             uploadProgress: percent
           })
 
@@ -242,7 +254,7 @@ class Pictures extends React.Component {
           firebase.database().ref().update(updates)
 
           self.setState({
-            uploadingImage: false,
+            uploading: false,
             uploadProgress: 0
           })
           window.location = `/albums/${self.props.match.params.id}`
@@ -251,6 +263,52 @@ class Pictures extends React.Component {
       })
     }, false)
     reader.readAsDataURL(image)
+  }
+
+  uploadAudio(e) {
+    e.preventDefault()
+    let self = this
+
+    let title = e.target.querySelector('#audioTitle-' + self.props.match.params.id).value
+    let audio = e.target.querySelector('#audioUpload-' + self.props.match.params.id).files[0]
+
+    let newAudioKey = firebase.database().ref().child('audio').push().key
+
+    let audioRef = firebase.storage().ref('audio/' + newAudioKey)
+
+    let uploadTask = audioRef.put(audio)
+
+    uploadTask.on('state_changed', function (snapshot) {
+      let percent = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100)
+      console.log('Upload is ' + percent + '% done')
+      // Progress Bar (State)
+      self.setState({
+        uploading: true,
+        uploadProgress: percent
+      })
+    }, function (error) {
+      alert(error)
+    }, function () {
+      let url = uploadTask.snapshot.downloadURL
+      let updates = {}
+      updates['/audio/' + self.props.match.params.id + '/' + newAudioKey] = {
+        id: newAudioKey,
+        index: self.state.audio.length || 0,
+        url: url,
+        title: title,
+        timestamp: Date.now()
+      }
+      updates['/albums/' + self.props.match.params.id + '/audio/' + newAudioKey] = true
+      console.log('UPDATES', updates);
+      firebase.database().ref().update(updates)
+
+      self.setState({
+        uploading: false,
+        uploadProgress: 0
+      })
+
+      window.location = `/albums/${self.props.match.params.id}`
+    })
   }
 
   editAlbumDetail (e) {
@@ -538,7 +596,7 @@ class Pictures extends React.Component {
         }
       })
 
-      updates['/pictures/' + this.props.match.params.id + '/' + image.id + '/index/'] = this.state.pictures.length - 1
+      updates['/pictures/' + this.props.match.params.id + '/' + image.id + '/index/'] = this.state.originalPictures.length - 1
       if (pictureToSwap.length > 0) {
         updates['/pictures/' + this.props.match.params.id + '/' + pictureToSwap[0].id + '/index/'] = image.index
       }
@@ -563,7 +621,7 @@ class Pictures extends React.Component {
   sendPictureAfter(e, image) {
     e.preventDefault()
     let updates = {}
-    if (image.index == this.state.pictures.length - 1) {
+    if (image.index == this.state.originalPictures.length - 1) {
 
       let pictureToSwap = this.state.originalPictures.filter(picture => {
         if (picture.index == 0) {
@@ -661,7 +719,7 @@ class Pictures extends React.Component {
     }
 
     // MAP INTO TABLE OR ALL USER TO STATE???
-    console.log(organisers, participants, pending)
+    // console.log(organisers, participants, pending)
 
     let organisersList = organisers.map((user, index) => {
       return (
@@ -798,7 +856,7 @@ class Pictures extends React.Component {
             <Modal.Title>Drop in a Photo</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            {this.state.uploadingImage &&
+            {this.state.uploading &&
               <div>
                 <span>
                   Uploading Image. Please wait.
@@ -935,6 +993,32 @@ class Pictures extends React.Component {
                 </Tab>
 
                 <Tab eventKey={'audio'} title="Audio">
+
+                  {this.state.uploading &&
+                    <div>
+                      <span>
+                        Uploading Audio. Please wait.
+                      </span>
+                      <ProgressBar active now={this.state.uploadProgress} label={`${this.state.uploadProgress}%`} />
+                    </div>}
+
+                    <Form horizontal onSubmit={(e) => this.uploadAudio(e)}>
+                      <FormGroup bsSize="large">
+                        <Col sm={12}>
+                          <FormControl type='text' id={`audioTitle-${this.props.match.params.id}`} placeholder= 'Title'/>
+                        </Col>
+                      </FormGroup>
+                      <FormGroup bsSize="large">
+                        <Col sm={12}>
+                          <FormControl type='file' id={`audioUpload-${this.props.match.params.id}`} accept='audio/*' />
+                        </Col>
+                      </FormGroup>
+                      <br></br><br></br>
+                      <Button bsStyle="primary" type="submit">
+                        Upload
+                      </Button>
+                    </Form>
+
                   <div>
                     <div>
                       Audio Name
@@ -943,6 +1027,9 @@ class Pictures extends React.Component {
                       </Button>
                     </div>
                   </div>
+
+
+
                 </Tab>
               </Tabs>
 

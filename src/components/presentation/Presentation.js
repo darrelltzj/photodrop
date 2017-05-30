@@ -7,6 +7,9 @@ import {
   Image
  } from 'react-bootstrap'
 
+import ReactAudioPlayer from 'react-audio-player'
+import ReactPlayer from 'react-player'
+
 class Presentation extends React.Component {
   constructor(props) {
     super(props)
@@ -188,7 +191,7 @@ class Presentation extends React.Component {
     if (document.querySelector('.message-end')) {
       document.querySelector('.message-end').scrollIntoView(true)
     }
-
+    console.log('playing')
     return (
       <div className="presentation-container" id={`album-${this.props.match.params.id}-presentation`} onLoad={(e) => this.setImages(e)}>
         {/* <div className="presentation-images-container"> */}
@@ -197,6 +200,7 @@ class Presentation extends React.Component {
             {messageList}
             <div className="message-end" ref={(el) => { this.messagesEnd = el }}></div>
           </div>
+          <ReactPlayer url="https://firebasestorage.googleapis.com/v0/b/yoursincerely-3ee90.appspot.com/o/audio%2F-KlPjiANyh13bj4j03cb?alt=media&token=127be0aa-b69a-4adb-8fe0-dcef650b4bf7" playing loop/>
         {/* </div> */}
       </div>
     )
