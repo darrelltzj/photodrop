@@ -18,6 +18,10 @@ class Presentation extends React.Component {
     }
     this.images = []
     this.index = 0
+
+    this.messagesTimer = 3
+    this.messages = null
+
     this.total = this.images.length
 		this.timer = null
     this.messagesEnd = null
@@ -93,7 +97,7 @@ class Presentation extends React.Component {
     // console.log('updating')
     // Set new image order
     this.setImages()
-
+    this.setMessages()
     // Check for live - to start or stop
     this.stopStart()
   }
@@ -101,6 +105,13 @@ class Presentation extends React.Component {
   setImages(e) {
     // console.log('updatingAgain')
     this.images = document.querySelector(`#album-${this.props.match.params.id}-presentation`).querySelectorAll('.presentation-image')
+  }
+
+  setMessages(e) {
+    this.messages = document.querySelector(`#album-${this.props.match.params.id}-presentation`).querySelector('.presentation-message-container')
+    this.messagesTimer = 3
+    this.messages.style.opacity = 1
+    console.log('UPDATING', this.messages);
   }
 
   slideTo(index) {
@@ -113,6 +124,11 @@ class Presentation extends React.Component {
         slide.style.opacity = 0
       }
     }
+
+    if (this.messagesTimer < 1) {
+      this.messages.style.opacity = 0
+    }
+
   }
 
   action () {
@@ -122,11 +138,13 @@ class Presentation extends React.Component {
 
       self.timer = setInterval(function () {
         self.index++
+        self.messagesTimer--
         if(self.index == self.images.length) {
           self.index = 0
         }
 
         console.log('INDEX', self.index)
+        console.log('MessageTimer', self.messagesTimer)
 
         self.slideTo(self.index)
       }, 3000)
@@ -173,13 +191,13 @@ class Presentation extends React.Component {
 
     return (
       <div className="presentation-container" id={`album-${this.props.match.params.id}-presentation`} onLoad={(e) => this.setImages(e)}>
-        <div className="presentation-images-container">
+        {/* <div className="presentation-images-container"> */}
           {pictureList}
           <div className="presentation-message-container">
-          {messageList}
-          <div className="message-end" ref={(el) => { this.messagesEnd = el }}></div>
+            {messageList}
+            <div className="message-end" ref={(el) => { this.messagesEnd = el }}></div>
           </div>
-        </div>
+        {/* </div> */}
       </div>
     )
   }

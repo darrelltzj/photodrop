@@ -227,7 +227,7 @@ class Pictures extends React.Component {
           // Update Current Object of Album inside Pictures
           albumInPictures[newPictureKey] = {
             id: newPictureKey,
-            index: self.state.album.nextIndex,
+            index: self.state.originalPictures.length,
             url: url,
             uid: firebase.auth().currentUser.uid,
             owner: firebase.auth().currentUser.displayName,
@@ -237,7 +237,7 @@ class Pictures extends React.Component {
           let updates = {}
           updates['/pictures/' + self.props.match.params.id] = albumInPictures
           updates['/albums/' + self.props.match.params.id + '/pictures/' + newPictureKey] = true
-          updates['/albums/' + self.props.match.params.id + '/nextIndex/'] = self.state.album.nextIndex + 1
+          // updates['/albums/' + self.props.match.params.id + '/nextIndex/'] = self.state.album.nextIndex + 1
           // console.log('updates', updates)
           firebase.database().ref().update(updates)
 
@@ -536,10 +536,12 @@ class Pictures extends React.Component {
         if (picture.index == this.state.originalPictures.length - 1) {
           return picture
         }
-      })[0]
+      })
 
       updates['/pictures/' + this.props.match.params.id + '/' + image.id + '/index/'] = this.state.pictures.length - 1
-      updates['/pictures/' + this.props.match.params.id + '/' + pictureToSwap.id + '/index/'] = image.index
+      if (pictureToSwap.length > 0) {
+        updates['/pictures/' + this.props.match.params.id + '/' + pictureToSwap[0].id + '/index/'] = image.index
+      }
 
     } else {
 
@@ -547,11 +549,12 @@ class Pictures extends React.Component {
         if (picture.index == image.index - 1) {
           return picture
         }
-      })[0]
+      })
 
       updates['/pictures/' + this.props.match.params.id + '/' + image.id + '/index/'] = image.index - 1
-      updates['/pictures/' + this.props.match.params.id + '/' + pictureToSwap.id + '/index/'] = image.index
-
+      if (pictureToSwap.length > 0) {
+        updates['/pictures/' + this.props.match.params.id + '/' + pictureToSwap[0].id + '/index/'] = image.index
+      }
     }
     // console.log('new index', updates)
     firebase.database().ref().update(updates)
@@ -566,21 +569,24 @@ class Pictures extends React.Component {
         if (picture.index == 0) {
           return picture
         }
-      })[0]
+      })
 
       updates['/pictures/' + this.props.match.params.id + '/' + image.id + '/index/'] = 0
-      updates['/pictures/' + this.props.match.params.id + '/' + pictureToSwap.id + '/index/'] = image.index
-
+      if (pictureToSwap.length > 0) {
+        updates['/pictures/' + this.props.match.params.id + '/' + pictureToSwap[0].id + '/index/'] = image.index
+      }
     } else {
 
       let pictureToSwap = this.state.originalPictures.filter(picture => {
         if (picture.index == image.index + 1) {
           return picture
         }
-      })[0]
+      })
 
       updates['/pictures/' + this.props.match.params.id + '/' + image.id + '/index/'] = image.index + 1
-      updates['/pictures/' + this.props.match.params.id + '/' + pictureToSwap.id + '/index/'] = image.index
+      if (pictureToSwap.length > 0) {
+        updates['/pictures/' + this.props.match.params.id + '/' + pictureToSwap[0].id + '/index/'] = image.index
+      }
 
     }
     // console.log('updates', updates)

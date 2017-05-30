@@ -67,6 +67,10 @@ body {
   max-height: 100%;
 }
 
+img {
+  image-orientation: from-image;
+}
+
 .album-live-comment-container {
   position: absolute;
   bottom: 0;
@@ -116,25 +120,45 @@ body {
 }
 
 .presentation-container {
-  max-width:100%;
-  max-height: 100%;
+  /*max-width:100%;
+  max-height: 100%;*/
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
 }
 
-.presentation-images-container {
+/*.presentation-images-container {
   width:100vw;
   height: 100vh;
 	position: relative;
   display:flex;
   justify-content:center;
   align-items:center;
-}
+  overflow: hidden;
+}*/
 
 .presentation-image {
-	position: absolute;
+	/*position: absolute;
 	max-width: 100%;
-	max-height: 100%;
+	max-height: 100%;*/
 	opacity: 0;
 	transition: opacity 1s linear;
+
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+  /*width: 100%;
+  height: auto;*/
+  height: 100%;
+  width: auto;
 }
 
 .presentation-images-container > .presentation-image:first-child {
@@ -147,10 +171,10 @@ body {
   background: rgba(255, 255, 255, 0.8);
   position: absolute;
   bottom: 0;
-  left: 10%;
+  left: 15%;
   width: 70%;
   max-height: 300px;
-  overflow: scroll;
+  overflow: hidden;
   transition: opacity 1s linear;
 }
 
