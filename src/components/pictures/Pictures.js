@@ -248,7 +248,7 @@ class Pictures extends React.Component {
         })
 
       })
-    }, false)
+    }, true)
     reader.readAsDataURL(image)
   }
 
