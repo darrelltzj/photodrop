@@ -177,6 +177,15 @@ body {
   overflow: scroll;
 }
 
+.presentation-image-control {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100px;
+  width: 100px;
+  transform: rotate(90deg);
+}
+
 .presentation-image-index {
   font-size: 30px;
 }

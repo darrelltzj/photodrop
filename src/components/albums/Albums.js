@@ -20,7 +20,7 @@ import {
   Image
  } from 'react-bootstrap'
 
-import Autosuggest from 'react-autosuggest'
+// import Autosuggest from 'react-autosuggest'
 
 import Navbar from '../navbar/Navbar'
 import MessagesDisplay from '../messages/MessagesDisplay'
@@ -31,7 +31,7 @@ class Albums extends React.Component {
     this.state = {
       albums: [],
       originalAlbums: [],
-      pictures: [],
+      pictures: {},
       messages: {},
       // currentUserUid: firebase.auth().currentUser.uid || '',
       key: 'participating',
@@ -53,13 +53,13 @@ class Albums extends React.Component {
 
     firebase.database().ref('/pictures').on('value', snapshot => {
       this.setState({
-        pictures: snapshot.val()
+        pictures: snapshot.val() || {}
       })
     })
 
     firebase.database().ref('/messages/').on('value', snapshot => {
       this.setState({
-        messages: snapshot.val()
+        messages: snapshot.val() || {}
       })
     })
   }
@@ -205,6 +205,9 @@ class Albums extends React.Component {
         } else {
           pictureList.push({id:'default', lastUpdate:'default', uid:'default', url:'http://i.imgur.com/UBshxxy.png'})
         }
+        pictureList.sort((a, b) => {
+          return a.index - b.index
+        })
 
         return (
           <div key={album.id}>

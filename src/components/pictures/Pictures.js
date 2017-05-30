@@ -113,6 +113,11 @@ class Pictures extends React.Component {
       snapshot.forEach(picture => {
         pictures.push(picture.val())
       })
+
+      pictures.sort((a, b) => {
+        return a.index - b.index
+      })
+
       this.setState({
         pictures: pictures,
         originalPictures: pictures
@@ -505,30 +510,65 @@ class Pictures extends React.Component {
     })
   }
 
-  sendPictureBefore(e, picture) {
+  sendPictureBefore(e, image) {
     e.preventDefault()
-    console.log(picture)
-    if (picture.index == 0) {
-      picture.index = this.state.album.nextIndex - 1
-      // index before switch
+
+    let updates = {}
+    if (image.index == 0) {
+
+      let pictureToSwap = this.state.originalPictures.filter(picture => {
+        if (picture.index == this.state.originalPictures.length - 1) {
+          return picture
+        }
+      })[0]
+
+      updates['/pictures/' + this.props.match.params.id + '/' + image.id + '/index/'] = this.state.pictures.length - 1
+      updates['/pictures/' + this.props.match.params.id + '/' + pictureToSwap.id + '/index/'] = image.index
+
     } else {
-      picture.index--
-      // index before switch
+
+      let pictureToSwap = this.state.originalPictures.filter(picture => {
+        if (picture.index == image.index - 1) {
+          return picture
+        }
+      })[0]
+
+      updates['/pictures/' + this.props.match.params.id + '/' + image.id + '/index/'] = image.index - 1
+      updates['/pictures/' + this.props.match.params.id + '/' + pictureToSwap.id + '/index/'] = image.index
+
     }
-    console.log('new index', picture.index)
+    // console.log('new index', updates)
+    firebase.database().ref().update(updates)
   }
 
-  sendPictureAfter(e, picture) {
+  sendPictureAfter(e, image) {
     e.preventDefault()
-    console.log(picture)
-    if (picture.index == this.state.album.nextIndex - 1) {
-      picture.index = 0
-      // next index switch
+    let updates = {}
+    if (image.index == this.state.pictures.length - 1) {
+
+      let pictureToSwap = this.state.originalPictures.filter(picture => {
+        if (picture.index == 0) {
+          return picture
+        }
+      })[0]
+
+      updates['/pictures/' + this.props.match.params.id + '/' + image.id + '/index/'] = 0
+      updates['/pictures/' + this.props.match.params.id + '/' + pictureToSwap.id + '/index/'] = image.index
+
     } else {
-      picture.index++
-      // next index switch
+
+      let pictureToSwap = this.state.originalPictures.filter(picture => {
+        if (picture.index == image.index + 1) {
+          return picture
+        }
+      })[0]
+
+      updates['/pictures/' + this.props.match.params.id + '/' + image.id + '/index/'] = image.index + 1
+      updates['/pictures/' + this.props.match.params.id + '/' + pictureToSwap.id + '/index/'] = image.index
+
     }
-    console.log('new index', picture.index);
+    // console.log('updates', updates)
+    firebase.database().ref().update(updates)
   }
 
   render() {
@@ -654,15 +694,15 @@ class Pictures extends React.Component {
       return (
         <div className="presentation-image-settings-row">
           <Col sm={3}>
+            <span className="presentation-image-index">Index: {picture.index}</span>
+          </Col>
+          <Col sm={3}>
             <div className="thumbnail-container">
               <Thumbnail src={picture.url} className="thumbnail"/>
             </div>
           </Col>
           <Col sm={3}>
-            <span className="presentation-image-index">Index: {picture.index}</span>
-          </Col>
-          <Col sm={3}>
-            <div>
+            <div className="presentation-image-control">
               <Button bsStyle="primary" onClick={(e) => this.sendPictureBefore(e, picture)}>
                 {'<'}
               </Button>
@@ -698,7 +738,7 @@ class Pictures extends React.Component {
 
           <ButtonToolbar>
             <Button bsStyle="primary" onClick={(e) => this.open(e, 'addNewPicture')}>
-              Drop a Photo
+              Drop in a Photo
             </Button>
             <Button bsStyle="primary" onClick={(e) => this.open(e, 'showMessages')}>
               Messages
@@ -733,10 +773,10 @@ class Pictures extends React.Component {
 
         <Modal show={this.state.showAddNewPicture} onHide={(e) => this.close(e, 'showAddNewPicture')}>
           <Modal.Header closeButton>
-            <Modal.Title>Add New Picture</Modal.Title>
+            <Modal.Title>Drop in a Photo</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-
+            {/* TAB FOR CAPTURE OR UPLOAD */}
             <Form horizontal onSubmit={(e) => this.uploadImage(e)}>
               <FormGroup bsSize="large">
                 <Col sm={12}>
@@ -747,6 +787,7 @@ class Pictures extends React.Component {
                 Submit
               </Button>
             </Form>
+
           </Modal.Body>
           <Modal.Footer>
             <Button onClick={(e) => this.close(e, 'showAddNewPicture')}>Cancel</Button>

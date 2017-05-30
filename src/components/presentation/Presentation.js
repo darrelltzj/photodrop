@@ -63,6 +63,11 @@ class Presentation extends React.Component {
       snapshot.forEach(picture => {
         pictures.push(picture.val())
       })
+
+      pictures.sort((a, b) => {
+        return a.index - b.index
+      })
+
       this.setState({
         pictures: pictures
       })
@@ -85,11 +90,16 @@ class Presentation extends React.Component {
   }
 
   componentDidUpdate () {
-    console.log('updating');
+    // console.log('updating')
+    // Set new image order
+    this.setImages()
+
+    // Check for live - to start or stop
     this.stopStart()
   }
 
   setImages(e) {
+    // console.log('updatingAgain')
     this.images = document.querySelector(`#album-${this.props.match.params.id}-presentation`).querySelectorAll('.presentation-image')
   }
 
@@ -127,7 +137,7 @@ class Presentation extends React.Component {
 
   stopStart () {
     let self = this
-    console.log(self.timer);
+    console.log(self.timer)
     if (self.playPictures) {
       self.action()
     } else {
@@ -139,7 +149,7 @@ class Presentation extends React.Component {
   render() {
     let pictureList = this.state.pictures.map((picture, index) => {
       return (
-        <Image src={picture.url} key={picture.id} className="presentation-image" />
+        <Image src={picture.url} key={picture.id} className="presentation-image" id={picture.index} />
       )
     })
 
