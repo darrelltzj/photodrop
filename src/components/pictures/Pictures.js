@@ -199,7 +199,8 @@ class Pictures extends React.Component {
         let imageRef = firebase.storage().ref('images/' + newPictureKey)
 
         // Upload file
-        let uploadTask = imageRef.putString(newImage.src, 'data_url')
+        let uploadTask = imageRef.putString(fixed, 'data_url')
+        // let uploadTask = imageRef.putString(newImage.src, 'data_url')
 
         // Check progress and completion
         uploadTask.on('state_changed', function (snapshot) {
