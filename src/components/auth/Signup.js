@@ -29,7 +29,7 @@ class Signup extends React.Component {
   componentDidMount () {
     firebase.database().ref('/pending/').on('value', snapshot => {
       this.setState({
-        pending: snapshot.val()
+        pending: snapshot.val() || {}
       })
     })
   }
@@ -55,12 +55,15 @@ class Signup extends React.Component {
         let albumsPending = {}
         let participating = {}
         let updates = {}
-        if (emailSignup.replace('.', ' ') in this.state.pending) {
-          albumsPending = this.state.pending[emailSignup.replace('.', ' ')]
-        }
-        for (var key in albumsPending) {
-          participating[key] = true
-          updates['/albums/' + key + '/participants/' + user.uid] = true
+
+        if (Object.keys(this.state.pending).length !== 0) {
+          if (emailSignup.replace('.', ' ') in this.state.pending) {
+            albumsPending = this.state.pending[emailSignup.replace('.', ' ')]
+          }
+          for (var key in albumsPending) {
+            participating[key] = true
+            updates['/albums/' + key + '/participants/' + user.uid] = true
+          }
         }
 
         let newUser = {
@@ -72,6 +75,7 @@ class Signup extends React.Component {
         }
 
         updates['/users/' + user.uid] = newUser
+
         console.log('UPDATES', updates)
 
         firebase.database().ref().update(updates)
@@ -145,7 +149,7 @@ class Signup extends React.Component {
 
             <FormGroup>
               <Col smOffset={2} sm={10}>
-                <Button type="submit">
+                <Button type="submit" bsStyle="primary">
                   Sign Up
                 </Button>
               </Col>

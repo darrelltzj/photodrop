@@ -35,6 +35,7 @@ class Pictures extends React.Component {
     this.state = {
       album: {},
       pictures: [],
+      originalPictures: [],
       messages: [],
       showAddNewPicture: false,
       showMessages: false,
@@ -113,7 +114,8 @@ class Pictures extends React.Component {
         pictures.push(picture.val())
       })
       this.setState({
-        pictures: pictures
+        pictures: pictures,
+        originalPictures: pictures
       })
     })
 
@@ -210,14 +212,17 @@ class Pictures extends React.Component {
           // Update Current Object of Album inside Pictures
           albumInPictures[newPictureKey] = {
             id: newPictureKey,
+            index: self.state.album.nextIndex,
             url: url,
             uid: firebase.auth().currentUser.uid,
-            lastUpdate: Date.now()
+            owner: firebase.auth().currentUser.displayName,
+            timestamp: Date.now()
           }
 
           let updates = {}
           updates['/pictures/' + self.props.match.params.id] = albumInPictures
           updates['/albums/' + self.props.match.params.id + '/pictures/' + newPictureKey] = true
+          updates['/albums/' + self.props.match.params.id + '/nextIndex/'] = self.state.album.nextIndex + 1
           // console.log('updates', updates)
           firebase.database().ref().update(updates)
         })
@@ -487,6 +492,45 @@ class Pictures extends React.Component {
     })
   }
 
+  searchPictures(e) {
+    e.preventDefault()
+    let searchQueury = e.target.value.trim().toLowerCase()
+    let searchLength = searchQueury.length
+    let originalPictures = this.state.originalPictures
+    let fiteredPictures = originalPictures.filter((album) => {
+      return album.owner.toLowerCase().slice(0, searchLength) === searchQueury
+    })
+    this.setState({
+      pictures: fiteredPictures
+    })
+  }
+
+  sendPictureBefore(e, picture) {
+    e.preventDefault()
+    console.log(picture)
+    if (picture.index == 0) {
+      picture.index = this.state.album.nextIndex - 1
+      // index before switch
+    } else {
+      picture.index--
+      // index before switch
+    }
+    console.log('new index', picture.index)
+  }
+
+  sendPictureAfter(e, picture) {
+    e.preventDefault()
+    console.log(picture)
+    if (picture.index == this.state.album.nextIndex - 1) {
+      picture.index = 0
+      // next index switch
+    } else {
+      picture.index++
+      // next index switch
+    }
+    console.log('new index', picture.index);
+  }
+
   render() {
     const masonryOptions = {
         transitionDuration: 0.8
@@ -535,8 +579,6 @@ class Pictures extends React.Component {
 
     let pictureSettings = this.state.album.live ? 'Pause Pictures' : 'Play Pictures'
 
-    // let user = {}
-
     let organisers = []
     for (var key in this.state.album['organisers']) {
       firebase.database().ref('/users/' + key).on('value', snapshot => {
@@ -555,15 +597,6 @@ class Pictures extends React.Component {
     for (var key in this.state.album['pending']) {
       pending.push(key.replace(' ', '.'))
     }
-    // FIND PENDING top
-    // let requests = []
-    // for (var key in this.state.album['requests']) {
-    //   firebase.database().ref('/users/' + key).on('value', snapshot => {
-    //     if (snapshot.val()) {
-    //       requests.push(snapshot.val())
-    //     }
-    //   })
-    // }
 
     // MAP INTO TABLE OR ALL USER TO STATE???
     console.log(organisers, participants, pending)
@@ -617,6 +650,31 @@ class Pictures extends React.Component {
       )
     })
 
+    let presentationImages = this.state.originalPictures.map((picture, index) => {
+      return (
+        <div className="presentation-image-settings-row">
+          <Col sm={3}>
+            <div className="thumbnail-container">
+              <Thumbnail src={picture.url} className="thumbnail"/>
+            </div>
+          </Col>
+          <Col sm={3}>
+            <span className="presentation-image-index">Index: {picture.index}</span>
+          </Col>
+          <Col sm={3}>
+            <div>
+              <Button bsStyle="primary" onClick={(e) => this.sendPictureBefore(e, picture)}>
+                {'<'}
+              </Button>
+              <Button bsStyle="primary" onClick={(e) => this.sendPictureAfter(e, picture)}>
+                {'>'}
+              </Button>
+            </div>
+          </Col>
+        </div>
+      )
+    })
+
     return (
       <div>
         <Navbar />
@@ -629,10 +687,10 @@ class Pictures extends React.Component {
           </div>
 
           <div>
-            <Form horizontal onChange={(e) => this.search(e)}>
+            <Form horizontal onChange={(e) => this.searchPictures(e)}>
               <FormGroup bsSize="large">
                 <Col sm={12}>
-                  <FormControl type='text' placeholder='Search Pictures of Author' />
+                  <FormControl type='text' placeholder='Search Pictures by Author' />
                 </Col>
               </FormGroup>
             </Form>
@@ -640,18 +698,18 @@ class Pictures extends React.Component {
 
           <ButtonToolbar>
             <Button bsStyle="primary" onClick={(e) => this.open(e, 'addNewPicture')}>
-              Add Picture
+              Drop a Photo
             </Button>
             <Button bsStyle="primary" onClick={(e) => this.open(e, 'showMessages')}>
               Messages
             </Button>
             {this.state.organiser &&
               <Button onClick={(e) => this.open(e, 'editDetails')}>
-                Edit Details
+                Album Details
               </Button>}
             {this.state.organiser &&
               <Button onClick={(e) => this.open(e, 'pictureSettings')}>
-                Picture Settings
+                Presentation
               </Button>}
             {this.state.organiser &&
               <Button onClick={(e) => this.open(e, 'participants')}>
@@ -665,7 +723,8 @@ class Pictures extends React.Component {
               elementType={'div'}
               options={masonryOptions}
               disableImagesLoaded={false}
-              updateOnEachImageLoad={false}
+              // updateOnEachImageLoad={false}
+              updateOnEachImageLoad={true}
                 >
               {pictureList}
             </Masonry>
@@ -795,20 +854,11 @@ class Pictures extends React.Component {
               Open Presentation Screen
             </Button>
             <div>
+
               <Tabs defaultActiveKey={'pictures'}>
                 <Tab eventKey={'pictures'} title="Pictures">
                   <div className="settings-images">
-                    <Col sm={4}>
-                    <div>
-                      <Thumbnail src="https://firebasestorage.googleapis.com/v0/b/yoursincerely-3ee90.appspot.com/o/images%2F-KkzDdceW3h1zQ4AJOxv.png?alt=media&token=56ae9a38-5bce-4bbf-a70e-d434e6485804" className="thumbnail"/>
-                      <Button bsStyle="primary">
-                      {'<'}
-                      </Button>
-                      <Button bsStyle="primary">
-                        {'>'}
-                      </Button>
-                    </div>
-                  </Col>
+                    {presentationImages}
                   </div>
                 </Tab>
 

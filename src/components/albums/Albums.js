@@ -98,6 +98,7 @@ class Albums extends React.Component {
       requests: {'none': true},
       live: false,
       pictures: {},
+      nextIndex: 0,
       current: {},
       default: {}
     }
