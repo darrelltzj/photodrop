@@ -20,7 +20,8 @@ import {
   Tabs,
   Tab,
   Thumbnail,
-  Table
+  Table,
+  ProgressBar
  } from 'react-bootstrap'
 
 import Masonry from 'react-masonry-component'
@@ -45,7 +46,9 @@ class Pictures extends React.Component {
       currentUserUid: null,
       organiser: false,
       participant: false,
-      isOwner: false
+      isOwner: false,
+      uploadingImage: false,
+      uploadProgress: 0
     }
   }
 
@@ -199,9 +202,14 @@ class Pictures extends React.Component {
 
         // Check progress and completion
         uploadTask.on('state_changed', function (snapshot) {
-          let percent = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+          let percent = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100)
           console.log('Upload is ' + percent + '% done')
-          // DO THE PROGRESS BAR HERE (State)
+          // Progress Bar (State)
+          self.setState({
+            uploadingImage: true,
+            uploadProgress: percent
+          })
+
         }, function (error) {
           alert(error)
         }, function () {
@@ -230,6 +238,12 @@ class Pictures extends React.Component {
           updates['/albums/' + self.props.match.params.id + '/nextIndex/'] = self.state.album.nextIndex + 1
           // console.log('updates', updates)
           firebase.database().ref().update(updates)
+
+          self.setState({
+            uploadingImage: false,
+            uploadProgress: 0
+          })
+          window.location = `/albums/${self.props.match.params.id}`
         })
 
       })
@@ -297,7 +311,7 @@ class Pictures extends React.Component {
       updates['/pictures/' + this.props.match.params.id + '/' + pictureId] = null
       // NEED TO CHECK HOW TO PREVENT CLOSING THE MODAL
       firebase.database().ref().update(updates).then(() => {
-        console.log('Delete Message Successful')
+        console.log('Delete Picture Successful')
       }).catch((err) => {
         alert(err)
       })
@@ -776,18 +790,48 @@ class Pictures extends React.Component {
             <Modal.Title>Drop in a Photo</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            {/* TAB FOR CAPTURE OR UPLOAD */}
-            <Form horizontal onSubmit={(e) => this.uploadImage(e)}>
-              <FormGroup bsSize="large">
-                <Col sm={12}>
-                  <FormControl type='file' id={`imageUpload-${this.props.match.params.id}`} accept='image/*' capture='camera' />
-                </Col>
-              </FormGroup>
-              <Button bsStyle="primary" type="submit">
-                Submit
-              </Button>
-            </Form>
-
+            <Tabs defaultActiveKey={'capture'} id="uncontrolled-tab-example">
+              <Tab eventKey={'capture'} title="Capture Image">
+                <br></br>
+                <Form horizontal onSubmit={(e) => this.uploadImage(e)}>
+                  {this.state.uploadingImage &&
+                    <div>
+                      <span>
+                        Uploading Image. Please wait.
+                      </span>
+                      <ProgressBar active now={this.state.uploadProgress} label={`${this.state.uploadProgress}%`} />
+                    </div>}
+                  <FormGroup bsSize="large">
+                    <Col sm={12}>
+                      <FormControl type='file' id={`imageUpload-${this.props.match.params.id}`} accept='image/*' capture='camera' />
+                    </Col>
+                  </FormGroup>
+                  <Button bsStyle="primary" type="submit">
+                    Submit
+                  </Button>
+                </Form>
+              </Tab>
+              <Tab eventKey={'upload'} title="Upload from Storage">
+                <br></br>
+                <Form horizontal onSubmit={(e) => this.uploadImage(e)}>
+                  {this.state.uploadingImage &&
+                    <div>
+                      <span>
+                        Uploading Image. Please wait.
+                      </span>
+                      <ProgressBar active now={this.state.uploadProgress} label={`${this.state.uploadProgress}%`} />
+                    </div>}
+                  <FormGroup bsSize="large">
+                    <Col sm={12}>
+                      <FormControl type='file' id={`imageUpload-${this.props.match.params.id}`} accept='image/*' />
+                    </Col>
+                  </FormGroup>
+                  <Button bsStyle="primary" type="submit">
+                    Submit
+                  </Button>
+                </Form>
+              </Tab>
+            </Tabs>
           </Modal.Body>
           <Modal.Footer>
             <Button onClick={(e) => this.close(e, 'showAddNewPicture')}>Cancel</Button>

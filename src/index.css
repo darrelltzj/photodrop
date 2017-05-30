@@ -148,7 +148,7 @@ body {
   position: absolute;
   bottom: 0;
   left: 10%;
-  width: 80%;
+  width: 70%;
   max-height: 300px;
   overflow: scroll;
   transition: opacity 1s linear;
