@@ -20,6 +20,8 @@ import {
   Image
  } from 'react-bootstrap'
 
+import Autosuggest from 'react-autosuggest'
+
 import Navbar from '../navbar/Navbar'
 import MessagesDisplay from '../messages/MessagesDisplay'
 
@@ -28,6 +30,7 @@ class Albums extends React.Component {
     super(props)
     this.state = {
       albums: [],
+      originalAlbums: [],
       pictures: [],
       messages: {},
       // currentUserUid: firebase.auth().currentUser.uid || '',
@@ -43,7 +46,8 @@ class Albums extends React.Component {
         albums.push(album.val())
       })
       this.setState({
-        albums: albums
+        albums: albums,
+        originalAlbums: albums
       })
     })
 
@@ -159,6 +163,19 @@ class Albums extends React.Component {
     })
   }
 
+  searchAlbum (e) {
+    e.preventDefault()
+    let searchQueury = e.target.value.trim().toLowerCase()
+    let searchLength = searchQueury.length
+    let originalAlbums = this.state.originalAlbums
+    let filteredAlbums = originalAlbums.filter((album) => {
+      return album.title.toLowerCase().slice(0, searchLength) === searchQueury
+    })
+    this.setState({
+      albums: filteredAlbums
+    })
+  }
+
   render () {
     let albumsParticipating = []
     if (this.state.albums.length > 0) {
@@ -254,50 +271,50 @@ class Albums extends React.Component {
 
     // NEED TO FILTER REQUESTS
     // MAY NOT NEED THIS !!!
-    let albumsRequested = []
-    if (this.state.albums.length > 0) {
-      albumsRequested = this.state.albums.filter((album, index) => {
-        if (firebase.auth().currentUser.uid in album.requests) {
-          return true
-        } else {
-          return false
-        }
-      }).map((album, index) => {
-        let pictureList = []
-        if (this.state.pictures[album.id]) {
-          for (var key in this.state.pictures[album.id]) {
-            pictureList.push(this.state.pictures[album.id][key])
-          }
-        } else {
-          pictureList.push({id:'default', lastUpdate:'default', uid:'default', url:'http://i.imgur.com/UBshxxy.png'})
-        }
-        return (
-          <div key={album.id}>
-            <div className="album-content-container">
-              <div className="album-image-container">
-                <h2 className="album-title">
-                  {album.title}
-                </h2>
-                <Image src={pictureList[0].url} responsive className="album-image"/>
-              </div>
-
-              <div className="request-form-container">
-                <Form className="request-form" onSubmit={(e) => this.offRequest(e, album)}>
-                  <FormGroup>
-                    <Col sm={1}>
-                    <Button type="submit">
-                      Requested
-                    </Button>
-                    </Col>
-                  </FormGroup>
-                </Form>
-              </div>
-
-            </div>
-          </div>
-        )
-      })
-    }
+    // let albumsRequested = []
+    // if (this.state.albums.length > 0) {
+    //   albumsRequested = this.state.albums.filter((album, index) => {
+    //     if (firebase.auth().currentUser.uid in album.requests) {
+    //       return true
+    //     } else {
+    //       return false
+    //     }
+    //   }).map((album, index) => {
+    //     let pictureList = []
+    //     if (this.state.pictures[album.id]) {
+    //       for (var key in this.state.pictures[album.id]) {
+    //         pictureList.push(this.state.pictures[album.id][key])
+    //       }
+    //     } else {
+    //       pictureList.push({id:'default', lastUpdate:'default', uid:'default', url:'http://i.imgur.com/UBshxxy.png'})
+    //     }
+    //     return (
+    //       <div key={album.id}>
+    //         <div className="album-content-container">
+    //           <div className="album-image-container">
+    //             <h2 className="album-title">
+    //               {album.title}
+    //             </h2>
+    //             <Image src={pictureList[0].url} responsive className="album-image"/>
+    //           </div>
+    //
+    //           <div className="request-form-container">
+    //             <Form className="request-form" onSubmit={(e) => this.offRequest(e, album)}>
+    //               <FormGroup>
+    //                 <Col sm={1}>
+    //                 <Button type="submit">
+    //                   Requested
+    //                 </Button>
+    //                 </Col>
+    //               </FormGroup>
+    //             </Form>
+    //           </div>
+    //
+    //         </div>
+    //       </div>
+    //     )
+    //   })
+    // }
 
     let albumsOthers = []
     if (this.state.albums.length > 0) {
@@ -364,10 +381,12 @@ class Albums extends React.Component {
             <strong>Albums</strong>
           </PageHeader>
 
-          <Form horizontal onChange={(e) => this.search(e)}>
+          <Form horizontal>
             <FormGroup bsSize="large">
               <Col sm={12}>
-                <FormControl type='text' id='search-albums' name="search-albums" placeholder='Search Albums by Title' />
+
+                <FormControl type='text' id='search-albums' name="search-albums" placeholder='Search Albums by Title' onChange={(e) => this.searchAlbum(e)}/>
+
               </Col>
             </FormGroup>
           </Form>
@@ -394,7 +413,6 @@ class Albums extends React.Component {
 
             <Tab eventKey={'others'} title="Others">
               <div>
-                {albumsRequested}
                 {albumsOthers}
               </div>
             </Tab>

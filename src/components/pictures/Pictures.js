@@ -387,6 +387,14 @@ class Pictures extends React.Component {
     }
   }
 
+  isContentOwner(content) {
+    if (content.uid == firebase.auth().currentUser.uid) {
+      return true
+    } else {
+      return false
+    }
+  }
+
   removeAdmin (e, user) {
     if (confirm('Removing this user as an organiser. OK to proceed?')) {
       e.preventDefault()
@@ -489,15 +497,16 @@ class Pictures extends React.Component {
       return (
         <div key={picture.id} className="picture-container">
 
-          {/* {img} */}
-
           <Image src={picture.url} className="album-image" rounded/>
 
           <div className="picture-image-cover-container">
             <div className="picture-image-delete-container">
-              <Button onClick={(e) => this.deletePicture(e, picture.id)} bsStyle="link">
+
+              {(this.state.organiser || this.isContentOwner(picture)) &&
+              <Button onClick={(e) => this.deletePicture(e, picture.id)} bsStyle="link" className="picture-cover-text">
                 Delete
-              </Button>
+              </Button>}
+
             </div>
           </div>
         </div>
@@ -513,9 +522,12 @@ class Pictures extends React.Component {
           {message.message}
           <br></br>
           <small>{timestamp}</small>
+
+          {(this.state.organiser || this.isContentOwner(message)) &&
           <Button onClick={(e) => this.deleteMessage(e, message.id)} bsStyle="link">
             Delete
-          </Button>
+          </Button>}
+
           <br></br><br></br>
         </div>
       )
@@ -695,7 +707,7 @@ class Pictures extends React.Component {
                 <Form className="album-live-comment-form" onSubmit={(e) => this.newMessage(e, this.props.match.params.id)}>
                   <FormGroup>
                     <Col sm={12}>
-                    <FormControl componentClass="textarea" placeholder="Add a live message..." id={`new-internal-message-${this.props.match.params.id}`}/>
+                    <FormControl componentClass="textarea" placeholder="Drop a message..." id={`new-internal-message-${this.props.match.params.id}`}/>
                     </Col>
                   </FormGroup>
                   <FormGroup>
