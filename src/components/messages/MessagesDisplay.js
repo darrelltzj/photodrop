@@ -5,7 +5,7 @@ class MessagesDisplay extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      messages: props.messages,
+      messages: props.messages
     }
   }
 
@@ -23,6 +23,7 @@ class MessagesDisplay extends React.Component {
         </div>
       )
     })
+
     return (
       <div>
         {messageList}

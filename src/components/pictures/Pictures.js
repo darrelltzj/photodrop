@@ -51,6 +51,7 @@ class Pictures extends React.Component {
       uploadProgress: 0,
       audio: []
     }
+    this.messagesEnd = null
   }
 
   componentWillMount() {
@@ -175,6 +176,12 @@ class Pictures extends React.Component {
       })
     }
   }
+
+  // componentDidUpdate () {
+  //   if (document.querySelector('.message-end')) {
+  //     document.querySelector('.message-end').scrollIntoView(true)
+  //   }
+  // }
 
   close (e, selection) {
     // HANDLE RESET STATE
@@ -417,11 +424,15 @@ class Pictures extends React.Component {
       message: e.target.querySelector(`#new-internal-message-${albumId}`).value,
       timestamp: Date.now()
     }
+    e.target.querySelector(`#new-internal-message-${albumId}`).value = ''
 
     let updates = {}
     updates['/messages/' + albumId + '/' + newMessageKey] = newMessage
     firebase.database().ref().update(updates).then(() => {
       console.log('New Message Sent')
+      if (document.querySelector('.message-end')) {
+          document.querySelector('.message-end').scrollIntoView(true)
+        }
     }).catch((err) => {
       alert(err)
     })
@@ -718,6 +729,10 @@ class Pictures extends React.Component {
       )
     })
 
+    if (document.querySelector('.message-end')) {
+      document.querySelector('.message-end').scrollIntoView(true)
+    }
+
     let pictureSettings = this.state.album.live ? 'Pause Pictures' : 'Play Pictures'
 
     let organisers = []
@@ -943,12 +958,13 @@ class Pictures extends React.Component {
             <div className="overall-message-container">
               <div className="message-container">
                 {messageList}
+                <div className="message-end" ref={(el) => { this.messagesEnd = el }}></div>
               </div>
               <div className="message-form-container">
                 <Form className="album-live-comment-form" onSubmit={(e) => this.newMessage(e, this.props.match.params.id)}>
                   <FormGroup>
                     <Col sm={12}>
-                    <FormControl componentClass="textarea" placeholder="Drop a message..." id={`new-internal-message-${this.props.match.params.id}`} required/>
+                      <FormControl componentClass="textarea" placeholder="Drop a message..." id={`new-internal-message-${this.props.match.params.id}`} required/>
                     </Col>
                   </FormGroup>
                   <FormGroup>
