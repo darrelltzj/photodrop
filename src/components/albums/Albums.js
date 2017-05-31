@@ -160,14 +160,18 @@ class Albums extends React.Component {
 
   offRequest (e, album) {
     e.preventDefault()
-    let updates = {}
-    updates['/albums/' + album.id + '/participants/' + firebase.auth().currentUser.uid] = null
-    updates['/users/' + firebase.auth().currentUser.uid + '/participating/' + album.id] = null
-    firebase.database().ref().update(updates).then(() => {
-      console.log('Updated Request')
-    }).catch((err) => {
-      alert(err)
-    })
+    if (confirm('Proceed to unfollow album?')) {
+      let updates = {}
+      updates['/albums/' + album.id + '/participants/' + firebase.auth().currentUser.uid] = null
+      updates['/users/' + firebase.auth().currentUser.uid + '/participating/' + album.id] = null
+      updates['/albums/' + album.id + '/organisers/' + firebase.auth().currentUser.uid] = null
+      updates['/users/' + firebase.auth().currentUser.uid + '/organising/' + album.id] = null
+      firebase.database().ref().update(updates).then(() => {
+        console.log('Updated Request')
+      }).catch((err) => {
+        alert(err)
+      })
+    }
   }
 
   searchAlbum (e) {
@@ -207,8 +211,10 @@ class Albums extends React.Component {
     let albumsParticipating = []
     if (this.state.albums.length > 0) {
       albumsParticipating = this.state.albums.filter((album, index) => {
-        if (firebase.auth().currentUser.uid in album.participants) {
-          return true
+        if (album.participants) {
+          if (firebase.auth().currentUser.uid in album.participants) {
+            return true
+          }
         }
       }).map((album,index) => {
 
@@ -246,12 +252,12 @@ class Albums extends React.Component {
                   {album.title}
                 </h2>
 
-                <Button type="submit" bsStyle="link" onClick={(e) => this.offRequest(e, album)}  className={['album-request', `hover-${album.id}`].join(' ')} onMouseOver={(e) => this.onImageHover(e, album.id)} onMouseOut={(e) => this.onImageOver(e, album.id)}>
+                {firebase.auth().currentUser.uid != album.owner &&<Button type="submit" bsStyle="link" onClick={(e) => this.offRequest(e, album)}  className={['album-request', `hover-${album.id}`].join(' ')} onMouseOver={(e) => this.onImageHover(e, album.id)} onMouseOut={(e) => this.onImageOver(e, album.id)} onTouchStart={(e) => this.onImageHover(e, album.id)} onTouchEnd={(e) => this.onImageOver(e, album.id)}>
                   Unfollow
-                </Button>
+                </Button>}
 
                 <Link to={`/albums/${album.id}`}>
-                  <Image src={pictureList[0].url} responsive className="album-image" onMouseOver={(e) => this.onImageHover(e, album.id)} onMouseOut={(e) => this.onImageOver(e, album.id)}/>
+                  <Image src={pictureList[0].url} responsive className="album-image" onMouseOver={(e) => this.onImageHover(e, album.id)} onMouseOut={(e) => this.onImageOver(e, album.id)} onTouchStart={(e) => this.onImageHover(e, album.id)} onTouchEnd={(e) => this.onImageOver(e, album.id)}/>
                 </Link>
 
                 <div className={["album-live-comment-container", `hover-${album.id}`].join(' ')}>
