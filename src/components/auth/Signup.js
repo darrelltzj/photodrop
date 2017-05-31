@@ -63,6 +63,7 @@ class Signup extends React.Component {
           for (var key in albumsPending) {
             participating[key] = true
             updates['/albums/' + key + '/participants/' + user.uid] = true
+            updates['/albums/' + key + '/pending/' + user.email.replace('.', ' ')] = null
           }
         }
 
@@ -75,6 +76,7 @@ class Signup extends React.Component {
         }
 
         updates['/users/' + user.uid] = newUser
+        updates['/pending/' + user.email.replace('.', ' ')] = null
 
         console.log('UPDATES', updates)
 

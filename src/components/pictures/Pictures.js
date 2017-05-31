@@ -556,6 +556,7 @@ class Pictures extends React.Component {
     e.preventDefault()
     console.log(e.target.querySelector(`#new-pending-${this.props.match.params.id}`).value)
     let pendingEmail = e.target.querySelector(`#new-pending-${this.props.match.params.id}`).value
+    e.target.querySelector(`#new-pending-${this.props.match.params.id}`).value = ''
     // Check if user exists
     firebase.database().ref('/users/').once('value').then(snapshot => {
       let users = []

@@ -12,6 +12,7 @@ import * as firebase from 'firebase'
 
 import Signup from '../auth/Signup'
 import Login from '../auth/Login'
+import Account from '../auth/Account'
 import Albums from '../albums/Albums'
 import Pictures from '../pictures/Pictures'
 import Presentation from '../presentation/Presentation'
@@ -103,6 +104,8 @@ class App extends React.Component {
           <Route exact path={'/albums/:id/edit'} component={AlbumEdit}/>
           <Route exact path={'/albums/:id/settings'} component={AlbumSettings}/> */}
           {/* ===NOT USED=== */}
+
+          <PrivateRoute exact path={'/account'} component={Account} />
 
           <PrivateRoute exact path={'/albums/:id'} component={Pictures} />
 
