@@ -4,6 +4,9 @@
   "engines": {
     "node": "6.9.4"
   },
+  "scripts": {
+  "start": "node index.js",
+},
   "private": true,
   "dependencies": {
     "bootstrap": "^3.3.7",
