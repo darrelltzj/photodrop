@@ -150,7 +150,7 @@ class Presentation extends React.Component {
         // console.log('INDEX', self.index)
         // console.log('MessageTimer', self.messagesTimer)
         self.slideTo(self.index)
-      }, 3000)
+      }, 4000)
     }
   }
 
@@ -207,7 +207,7 @@ class Presentation extends React.Component {
         {/* <div className="presentation-images-container"> */}
           {pictureList}
           <div className="presentation-message-container">
-            {messageList}
+            {messageList[messageList.length - 1]}
             <div className="message-end" ref={(el) => { this.messagesEnd = el }}></div>
           </div>
 

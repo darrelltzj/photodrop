@@ -654,6 +654,24 @@ class Pictures extends React.Component {
     firebase.database().ref().update(updates)
   }
 
+  stopAudio (e, aud) {
+    let updates = {}
+    updates['/audio/' + this.props.match.params.id + '/' + aud.id + '/status/'] = 'Paused'
+    updates['/albums/' + this.props.match.params.id + '/audioPlaying'] = null
+    firebase.database().ref().update(updates)
+  }
+
+  playAudio (e, aud) {
+    if (this.state.album.audioPlaying) {
+      alert(this.state.album.audioPlaying.title + ' is currently playing. Pause it before playing')
+    } else {
+      let updates = {}
+      updates['/audio/' + this.props.match.params.id + '/' + aud.id + '/status/'] = 'Playing'
+      updates['/albums/' + this.props.match.params.id + '/audioPlaying'] = aud
+      firebase.database().ref().update(updates)
+    }
+  }
+
   render() {
     const masonryOptions = {
         transitionDuration: 0.8
@@ -800,24 +818,29 @@ class Pictures extends React.Component {
 
     let audioList = this.state.audio.map((aud, index) => {
       return (
-        <div className="presentation-image-settings-row">
+        <div className="presentation-audio-settings-row">
           <Col sm={4}>
-            <span className="presentation-image-index">
+            <span className="presentation-audio-font">
               Index: {aud.index}
             </span>
           </Col>
           <Col sm={4}>
             <div className="thumbnail-container">
-              <span className="presentation-image-index">
+              <span className="presentation-audio-font">
                 {aud.title}
               </span>
             </div>
           </Col>
           <Col sm={4}>
             <div className="presentation-audio-control">
-              <Button bsStyle="primary">
-                {aud.status}
+              {aud.status == 'Playing' ?
+              <Button bsStyle="primary" onClick={(e) => this.stopAudio(e, aud)}>
+                Stop
               </Button>
+              :
+              <Button bsStyle="primary" onClick={(e) => this.playAudio(e, aud)}>
+                Play
+              </Button>}
             </div>
           </Col>
         </div>
@@ -858,7 +881,7 @@ class Pictures extends React.Component {
               </Button>}
             {this.state.organiser &&
               <Button onClick={(e) => this.open(e, 'pictureSettings')}>
-                Presentation
+                Live Stream
               </Button>}
             {this.state.organiser &&
               <Button onClick={(e) => this.open(e, 'participants')}>
@@ -896,7 +919,7 @@ class Pictures extends React.Component {
               <Form horizontal onSubmit={(e) => this.uploadImage(e)}>
                 <FormGroup bsSize="large">
                   <Col sm={12}>
-                    <FormControl type='file' id={`imageUpload-${this.props.match.params.id}`} accept='image/*' />
+                    <FormControl type='file' id={`imageUpload-${this.props.match.params.id}`} accept='image/*' required/>
                     {/* <FormControl type='file' id={`imageUpload-${this.props.match.params.id}`} accept='image/*' capture='camera' /> */}
                   </Col>
                 </FormGroup>
@@ -925,7 +948,7 @@ class Pictures extends React.Component {
                 <Form className="album-live-comment-form" onSubmit={(e) => this.newMessage(e, this.props.match.params.id)}>
                   <FormGroup>
                     <Col sm={12}>
-                    <FormControl componentClass="textarea" placeholder="Drop a message..." id={`new-internal-message-${this.props.match.params.id}`}/>
+                    <FormControl componentClass="textarea" placeholder="Drop a message..." id={`new-internal-message-${this.props.match.params.id}`} required/>
                     </Col>
                   </FormGroup>
                   <FormGroup>
@@ -957,7 +980,7 @@ class Pictures extends React.Component {
                     Title
                   </Col>
                   <Col sm={10}>
-                    <FormControl type='text' id={`edit-album-title-${this.props.match.params.id}`} name="title" placeholder='Title' value={this.state.album.title} onChange={(e) => this.handleChangeDetail(e, 'title')}/>
+                    <FormControl type='text' id={`edit-album-title-${this.props.match.params.id}`} name="title" placeholder='Title' value={this.state.album.title} onChange={(e) => this.handleChangeDetail(e, 'title')} required/>
                   </Col>
                 </FormGroup>
 
@@ -966,7 +989,7 @@ class Pictures extends React.Component {
                     Description
                   </Col>
                   <Col sm={10}>
-                    <FormControl componentClass='textarea' id={`edit-album-description-${this.props.match.params.id}`} name="description" placeholder='Description' value={this.state.album.description} onChange={(e) => this.handleChangeDetail(e, 'description')}/>
+                    <FormControl componentClass='textarea' id={`edit-album-description-${this.props.match.params.id}`} name="description" placeholder='Description' value={this.state.album.description} onChange={(e) => this.handleChangeDetail(e, 'description')} required/>
                   </Col>
                 </FormGroup>
 
@@ -1003,12 +1026,6 @@ class Pictures extends React.Component {
             <Modal.Title>Picture Settings</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <Button bsStyle="primary" onClick={(e) => this.playPictures(e)}>
-              {pictureSettings}
-            </Button>
-            <Button bsStyle="primary">
-              Play Audio
-            </Button>
             <Button bsStyle="link" onClick={(e) => this.presentationRedirect(e)}>
               Open Presentation Screen
             </Button>
@@ -1017,13 +1034,17 @@ class Pictures extends React.Component {
               <Tabs defaultActiveKey={'pictures'}>
                 <Tab eventKey={'pictures'} title="Pictures">
                   <div className="settings-images">
+                    <br></br><br></br>
+                    <Button bsStyle="primary" onClick={(e) => this.playPictures(e)}>
+                      {pictureSettings}
+                    </Button>
                     {presentationImages}
                   </div>
                 </Tab>
 
                 <Tab eventKey={'audio'} title="Audio">
                   <div className="settings-images">
-                    <h1>Upload Audio</h1>
+                    <h1 className="audio-header">Upload Audio</h1>
                     {this.state.uploading &&
                       <div>
                         <span>
@@ -1035,12 +1056,12 @@ class Pictures extends React.Component {
                       <Form horizontal onSubmit={(e) => this.uploadAudio(e)}>
                         <FormGroup bsSize="large">
                           <Col sm={12}>
-                            <FormControl type='text' id={`audioTitle-${this.props.match.params.id}`} placeholder= 'Title'/>
+                            <FormControl type='text' id={`audioTitle-${this.props.match.params.id}`} placeholder= 'Title' required/>
                           </Col>
                         </FormGroup>
                         <FormGroup bsSize="large">
                           <Col sm={12}>
-                            <FormControl type='file' id={`audioUpload-${this.props.match.params.id}`} accept='audio/*' />
+                            <FormControl type='file' id={`audioUpload-${this.props.match.params.id}`} accept='audio/*' required/>
                           </Col>
                         </FormGroup>
                         <Button bsStyle="primary" type="submit">
@@ -1049,6 +1070,7 @@ class Pictures extends React.Component {
                       </Form>
                   </div>
 
+                  <h1 className="audio-header">Audio List</h1>
                   {audioList}
 
                 </Tab>
