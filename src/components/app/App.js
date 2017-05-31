@@ -119,7 +119,7 @@ class App extends React.Component {
 }
 
 const isAuthenticated = () => {
-  console.log(localStorage)
+  // console.log(localStorage)
 
   if (!firebase.auth().currentUser) {
     let hasLocalStorageUser = false

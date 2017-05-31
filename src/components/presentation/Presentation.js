@@ -16,6 +16,7 @@ class Presentation extends React.Component {
     this.state = {
       pictures: [],
       messages: [],
+      audio: [],
       currentUserUid: null,
       organiser: false
     }
@@ -29,7 +30,7 @@ class Presentation extends React.Component {
 		this.timer = null
     this.messagesEnd = null
     this.playPictures = false
-    this.action()
+    // this.action()
   }
 
   componentWillMount() {
@@ -70,16 +71,13 @@ class Presentation extends React.Component {
       snapshot.forEach(picture => {
         pictures.push(picture.val())
       })
-
       pictures.sort((a, b) => {
         return a.index - b.index
       })
-
       this.setState({
         pictures: pictures
       })
     })
-
     firebase.database().ref('/messages/' + this.props.match.params.id).on('value', snapshot => {
       let messages = []
       snapshot.forEach(message => {
@@ -89,10 +87,18 @@ class Presentation extends React.Component {
         messages: messages
       })
     })
-
     firebase.database().ref('/albums/' + this.props.match.params.id + '/live').on('value', snapshot => {
       this.playPictures = snapshot.val()
-      console.log(this.playPictures)
+      // console.log(this.playPictures)
+    })
+    firebase.database().ref('/audio/' + this.props.match.params.id).on('value', snapshot => {
+      let audio = []
+      snapshot.forEach(aud => {
+        audio.push(aud.val())
+      })
+      this.setState({
+        audio: audio
+      })
     })
   }
 
@@ -114,56 +120,49 @@ class Presentation extends React.Component {
     this.messages = document.querySelector(`#album-${this.props.match.params.id}-presentation`).querySelector('.presentation-message-container')
     this.messagesTimer = 3
     this.messages.style.opacity = 1
-    console.log('UPDATING', this.messages);
+    // console.log('UPDATING', this.messages);
   }
 
   slideTo(index) {
     let currentImage = this.images[index]
+    // console.log('CURRENT IMAGE',currentImage)
     currentImage.style.opacity = 1
-
     for(var i = 0; i < this.images.length; i++) {
       let slide = this.images[i]
       if(slide !== currentImage) {
         slide.style.opacity = 0
       }
     }
-
-    if (this.messagesTimer < 1) {
+    if (this.messagesTimer < 1 || !this.timer) {
       this.messages.style.opacity = 0
     }
-
   }
 
   action () {
     let self = this
-
     if (!self.timer) {
-
       self.timer = setInterval(function () {
         self.index++
         self.messagesTimer--
         if(self.index == self.images.length) {
           self.index = 0
         }
-
-        console.log('INDEX', self.index)
-        console.log('MessageTimer', self.messagesTimer)
-
+        // console.log('INDEX', self.index)
+        // console.log('MessageTimer', self.messagesTimer)
         self.slideTo(self.index)
       }, 3000)
-
     }
-
   }
 
   stopStart () {
     let self = this
-    console.log(self.timer)
+    // console.log(self.timer)
     if (self.playPictures) {
       self.action()
     } else {
       clearInterval(self.timer)
       self.timer = null
+      self.slideTo(self.index)
     }
   }
 
@@ -191,7 +190,18 @@ class Presentation extends React.Component {
     if (document.querySelector('.message-end')) {
       document.querySelector('.message-end').scrollIntoView(true)
     }
-    console.log('playing')
+
+    let audioSelected = this.state.audio.filter((audio, index) => {
+      if (audio.status == 'Playing') {
+        return true
+      } else {
+        return false
+      }
+    })[0]
+
+    // console.log(audioSelected)
+
+    // console.log('playing')
     return (
       <div className="presentation-container" id={`album-${this.props.match.params.id}-presentation`} onLoad={(e) => this.setImages(e)}>
         {/* <div className="presentation-images-container"> */}
@@ -200,7 +210,11 @@ class Presentation extends React.Component {
             {messageList}
             <div className="message-end" ref={(el) => { this.messagesEnd = el }}></div>
           </div>
-          <ReactPlayer url="https://firebasestorage.googleapis.com/v0/b/yoursincerely-3ee90.appspot.com/o/audio%2F-KlPjiANyh13bj4j03cb?alt=media&token=127be0aa-b69a-4adb-8fe0-dcef650b4bf7" playing loop/>
+
+          <ReactPlayer
+            url={audioSelected ? audioSelected.url : null} playing={audioSelected ? true : false}
+            loop={true}/>
+
         {/* </div> */}
       </div>
     )

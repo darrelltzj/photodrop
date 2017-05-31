@@ -143,7 +143,9 @@ class Pictures extends React.Component {
       snapshot.forEach(aud => {
         audio.push(aud.val())
       })
-
+      audio.sort((a, b) => {
+        return a.index - b.index
+      })
       this.setState({
         audio: audio
       })
@@ -259,7 +261,6 @@ class Pictures extends React.Component {
           })
           window.location = `/albums/${self.props.match.params.id}`
         })
-
       })
     }, false)
     reader.readAsDataURL(image)
@@ -296,10 +297,12 @@ class Pictures extends React.Component {
         index: self.state.audio.length || 0,
         url: url,
         title: title,
+        status: 'Paused',
         timestamp: Date.now()
       }
+
       updates['/albums/' + self.props.match.params.id + '/audio/' + newAudioKey] = true
-      console.log('UPDATES', updates);
+      // console.log('UPDATES', updates)
       firebase.database().ref().update(updates)
 
       self.setState({
@@ -795,6 +798,32 @@ class Pictures extends React.Component {
       )
     })
 
+    let audioList = this.state.audio.map((aud, index) => {
+      return (
+        <div className="presentation-image-settings-row">
+          <Col sm={4}>
+            <span className="presentation-image-index">
+              Index: {aud.index}
+            </span>
+          </Col>
+          <Col sm={4}>
+            <div className="thumbnail-container">
+              <span className="presentation-image-index">
+                {aud.title}
+              </span>
+            </div>
+          </Col>
+          <Col sm={4}>
+            <div className="presentation-audio-control">
+              <Button bsStyle="primary">
+                {aud.status}
+              </Button>
+            </div>
+          </Col>
+        </div>
+      )
+    })
+
     return (
       <div>
         <Navbar />
@@ -993,42 +1022,34 @@ class Pictures extends React.Component {
                 </Tab>
 
                 <Tab eventKey={'audio'} title="Audio">
+                  <div className="settings-images">
+                    <h1>Upload Audio</h1>
+                    {this.state.uploading &&
+                      <div>
+                        <span>
+                          Uploading Audio. Please wait.
+                        </span>
+                        <ProgressBar active now={this.state.uploadProgress} label={`${this.state.uploadProgress}%`} />
+                      </div>}
 
-                  {this.state.uploading &&
-                    <div>
-                      <span>
-                        Uploading Audio. Please wait.
-                      </span>
-                      <ProgressBar active now={this.state.uploadProgress} label={`${this.state.uploadProgress}%`} />
-                    </div>}
-
-                    <Form horizontal onSubmit={(e) => this.uploadAudio(e)}>
-                      <FormGroup bsSize="large">
-                        <Col sm={12}>
-                          <FormControl type='text' id={`audioTitle-${this.props.match.params.id}`} placeholder= 'Title'/>
-                        </Col>
-                      </FormGroup>
-                      <FormGroup bsSize="large">
-                        <Col sm={12}>
-                          <FormControl type='file' id={`audioUpload-${this.props.match.params.id}`} accept='audio/*' />
-                        </Col>
-                      </FormGroup>
-                      <br></br><br></br>
-                      <Button bsStyle="primary" type="submit">
-                        Upload
-                      </Button>
-                    </Form>
-
-                  <div>
-                    <div>
-                      Audio Name
-                      <Button bsStyle="primary">
-                        Play
-                      </Button>
-                    </div>
+                      <Form horizontal onSubmit={(e) => this.uploadAudio(e)}>
+                        <FormGroup bsSize="large">
+                          <Col sm={12}>
+                            <FormControl type='text' id={`audioTitle-${this.props.match.params.id}`} placeholder= 'Title'/>
+                          </Col>
+                        </FormGroup>
+                        <FormGroup bsSize="large">
+                          <Col sm={12}>
+                            <FormControl type='file' id={`audioUpload-${this.props.match.params.id}`} accept='audio/*' />
+                          </Col>
+                        </FormGroup>
+                        <Button bsStyle="primary" type="submit">
+                          Upload
+                        </Button>
+                      </Form>
                   </div>
 
-
+                  {audioList}
 
                 </Tab>
               </Tabs>
