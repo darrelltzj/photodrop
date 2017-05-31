@@ -1,4 +1,5 @@
 import React from 'react'
+import ReactDOM from 'react-dom'
 
 import {
   Link
@@ -17,7 +18,8 @@ import {
   Tab,
   PageHeader,
   Modal,
-  Image
+  Image,
+  Popover
  } from 'react-bootstrap'
 
 // import Autosuggest from 'react-autosuggest'
@@ -35,8 +37,23 @@ class Albums extends React.Component {
       messages: {},
       // currentUserUid: firebase.auth().currentUser.uid || '',
       key: 'participating',
-      showModal: false
+      showModal: false,
+      isParticipating: false
     }
+  }
+
+  componentWillMount() {
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        firebase.database().ref('/users/' + user.uid + '/participating').on('value', snapshot => {
+          if (snapshot.val()) {
+            this.setState({
+              isParticipating: true
+            })
+          }
+        })
+      }
+    })
   }
 
   componentDidMount () {
@@ -333,7 +350,7 @@ class Albums extends React.Component {
                 </h2>
 
                 <Button type="submit" bsStyle="link" onClick={(e) => this.newRequest(e, album)} className={['album-request', `hover-${album.id}`].join(' ')} onMouseOver={(e) => this.onImageHover(e, album.id)} onMouseOut={(e) => this.onImageOver(e, album.id)}>
-                  Request
+                  Participate
                 </Button>
 
                 <Image src={pictureList[0].url} responsive className="album-image" onMouseOver={(e) => this.onImageHover(e, album.id)} onMouseOut={(e) => this.onImageOver(e, album.id)}/>
@@ -341,21 +358,7 @@ class Albums extends React.Component {
                 <div className={["album-live-comment-container", `hover-${album.id}`].join(' ')}>
                   {album.description}
                 </div>
-
               </div>
-
-              {/* <div className="request-form-container">
-                <Form className="request-form" onSubmit={(e) => this.newRequest(e, album)}>
-                  <FormGroup>
-                    <Col sm={1}>
-                    <Button type="submit" bsStyle="primary">
-                      Request
-                    </Button>
-                    </Col>
-                  </FormGroup>
-                </Form>
-              </div> */}
-
             </div>
           </div>
         )
@@ -381,13 +384,21 @@ class Albums extends React.Component {
             </FormGroup>
           </Form>
 
+          {!this.state.isParticipating && <Popover
+            placement="top"
+            positionLeft={320}
+            positionTop={84}
+            title="New here?">
+              Start participating in albums from the  <strong>Others</strong> tab OR simply <strong>Create Album</strong>.
+          </Popover>}
+
           <Col sm={4} md={2}>
             <Button bsStyle="primary" onClick={(e) => this.open(e)}>
               Create Album
             </Button>
           </Col>
 
-          <Tabs defaultActiveKey={this.state.key} onSelect={(e) => this.handleAlbumSelect(e)}>
+          <Tabs ref="targetIntro" defaultActiveKey={this.state.key} onSelect={(e) => this.handleAlbumSelect(e)}>
 
             <Tab eventKey={'participating'} title="Participating">
               <div className="albums-container">

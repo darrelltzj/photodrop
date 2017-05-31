@@ -1,4 +1,5 @@
 import React from 'react'
+import ReactDOM from 'react-dom'
 
 import {
   Link
@@ -21,7 +22,8 @@ import {
   Tab,
   Thumbnail,
   Table,
-  ProgressBar
+  ProgressBar,
+  Popover
  } from 'react-bootstrap'
 
 import Masonry from 'react-masonry-component'
@@ -716,7 +718,7 @@ class Pictures extends React.Component {
         <div key={picture.id} className="picture-container">
           <Image src={picture.url} className="album-image" rounded/>
 
-          <div className={["picture-image-cover-container", `hover-${picture.id}`].join(' ')} onMouseOver={(e) => this.onImageHover(e, picture.id)} onMouseOut={(e) => this.onImageOver(e, picture.id)}>
+          <div className={["picture-image-cover-container", `hover-${picture.id}`].join(' ')} onMouseOver={(e) => this.onImageHover(e, picture.id)} onMouseOut={(e) => this.onImageOver(e, picture.id)} onTouchStart={(e) => this.onImageHover(e, picture.id)} onTouchEnd={(e) => this.onImageOver(e, picture.id)}>
 
             <div className="picture-image-delete-container">
               {(this.state.organiser || this.isContentOwner(picture)) &&
@@ -955,6 +957,14 @@ class Pictures extends React.Component {
                 </span>
                 <ProgressBar active now={this.state.uploadProgress} label={`${this.state.uploadProgress}%`} />
               </div>}
+
+              {/* <Popover
+                placement="right"
+                positionLeft={220}
+                positionTop={30}
+                title="iPhone Portrait Camera Captures">
+                  Portrait Camera captures from iPhone are currently not supported. Upload portrait image from storage instead.
+              </Popover> */}
 
               <Form horizontal onSubmit={(e) => this.uploadImage(e)}>
                 <FormGroup bsSize="large">
