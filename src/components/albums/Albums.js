@@ -300,53 +300,6 @@ class Albums extends React.Component {
       })
     }
 
-    // NEED TO FILTER REQUESTS
-    // MAY NOT NEED THIS !!!
-    // let albumsRequested = []
-    // if (this.state.albums.length > 0) {
-    //   albumsRequested = this.state.albums.filter((album, index) => {
-    //     if (firebase.auth().currentUser.uid in album.requests) {
-    //       return true
-    //     } else {
-    //       return false
-    //     }
-    //   }).map((album, index) => {
-    //     let pictureList = []
-    //     if (this.state.pictures[album.id]) {
-    //       for (var key in this.state.pictures[album.id]) {
-    //         pictureList.push(this.state.pictures[album.id][key])
-    //       }
-    //     } else {
-    //       pictureList.push({id:'default', lastUpdate:'default', uid:'default', url:'http://i.imgur.com/UBshxxy.png'})
-    //     }
-    //     return (
-    //       <div key={album.id}>
-    //         <div className="album-content-container">
-    //           <div className="album-image-container">
-    //             <h2 className="album-title">
-    //               {album.title}
-    //             </h2>
-    //             <Image src={pictureList[0].url} responsive className="album-image"/>
-    //           </div>
-    //
-    //           <div className="request-form-container">
-    //             <Form className="request-form" onSubmit={(e) => this.offRequest(e, album)}>
-    //               <FormGroup>
-    //                 <Col sm={1}>
-    //                 <Button type="submit">
-    //                   Requested
-    //                 </Button>
-    //                 </Col>
-    //               </FormGroup>
-    //             </Form>
-    //           </div>
-    //
-    //         </div>
-    //       </div>
-    //     )
-    //   })
-    // }
-
     let albumsOthers = []
     if (this.state.albums.length > 0) {
       albumsOthers = this.state.albums.filter((album, index) => {

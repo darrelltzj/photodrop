@@ -683,6 +683,28 @@ class Pictures extends React.Component {
     }
   }
 
+  onImageHover (e, pictureId) {
+    e.preventDefault()
+    let elementsToHide = document.querySelectorAll(`.hover-${pictureId}`)
+    elementsToHide.forEach(element => {
+      element.style.background = 'rgba(0, 0, 0, 0.2)'
+      element.childNodes.forEach(child => {
+        child.style.visibility = 'visible'
+      })
+    })
+  }
+
+  onImageOver (e, pictureId) {
+    e.preventDefault()
+    let elementsToHide = document.querySelectorAll(`.hover-${pictureId}`)
+    elementsToHide.forEach(element => {
+      element.style.background = 'rgba(0, 0, 0, 0)'
+      element.childNodes.forEach(child => {
+        child.style.visibility = 'hidden'
+      })
+    })
+  }
+
   render() {
     const masonryOptions = {
         transitionDuration: 0.8
@@ -692,18 +714,21 @@ class Pictures extends React.Component {
 
       return (
         <div key={picture.id} className="picture-container">
-
           <Image src={picture.url} className="album-image" rounded/>
 
-          <div className="picture-image-cover-container">
-            <div className="picture-image-delete-container">
+          <div className={["picture-image-cover-container", `hover-${picture.id}`].join(' ')} onMouseOver={(e) => this.onImageHover(e, picture.id)} onMouseOut={(e) => this.onImageOver(e, picture.id)}>
 
+            <div className="picture-image-delete-container">
               {(this.state.organiser || this.isContentOwner(picture)) &&
               <Button onClick={(e) => this.deletePicture(e, picture.id)} bsStyle="link" className="picture-cover-text">
                 Delete
               </Button>}
-
             </div>
+
+            <div className="picture-image-owner-container">
+              Dropped in by: {picture.owner}
+            </div>
+
           </div>
         </div>
       )
