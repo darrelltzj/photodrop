@@ -16,7 +16,7 @@ class MessagesDisplay extends React.Component {
         <div key={message.id}>
           <strong>{message.userName}</strong>
           <br></br>
-          {message.message}
+          <p>{message.message}</p>
           <br></br>
           <small>{timestamp}</small>
           <br></br><br></br>
