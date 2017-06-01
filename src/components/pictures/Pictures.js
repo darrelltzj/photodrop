@@ -957,8 +957,10 @@ class Pictures extends React.Component {
                 Users
               </Button>}
           </ButtonToolbar>
+        </Col>
 
-          <div className='picture-content-container'>
+        <div className='picture-content-container'>
+          <Col sm={8} className="albums-display">
             <Masonry
               className={'masonry'}
               elementType={'div'}
@@ -969,8 +971,8 @@ class Pictures extends React.Component {
                 >
               {pictureList}
             </Masonry>
-          </div>
-        </Col>
+          </Col>
+        </div>
 
         <Modal show={this.state.showAddNewPicture} onHide={(e) => this.close(e, 'showAddNewPicture')}>
           <Modal.Header closeButton>
