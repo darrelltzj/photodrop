@@ -29,6 +29,20 @@ body {
   max-width: 4%;
 }
 
+.album-tab {
+  margin-left: -25%;
+  margin-right: -25%;
+  width: 150%;
+  height: 72vh;
+  overflow: scroll;
+}
+
+.actual-album-container {
+  margin-left: 16.7%;
+  margin-right: 16.7%;
+  width: 66%;
+}
+
 .albums-display {
   margin-left: 16.7%;
   margin-right: 16.7%;

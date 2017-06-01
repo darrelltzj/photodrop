@@ -468,20 +468,21 @@ class Albums extends React.Component {
 
           <Tabs ref="targetIntro" defaultActiveKey={this.state.key} onSelect={(e) => this.handleAlbumSelect(e)}>
 
-            <Tab eventKey={'participating'} title="Participating">
-              <div className="albums-container">
+            <Tab eventKey={'participating'} title="Participating" className='album-tab'>
+              {/* <div className="albums-container"> */}
+              <div className="actual-album-container">
                 {albumsParticipating}
               </div>
             </Tab>
 
-            <Tab eventKey={'organising'} title="Organising">
-              <div>
+            <Tab eventKey={'organising'} title="Organising" className='album-tab'>
+              <div className="actual-album-container">
                 {albumsOrganising}
               </div>
             </Tab>
 
-            <Tab eventKey={'others'} title="Others">
-              <div>
+            <Tab eventKey={'others'} title="Others" className='album-tab'>
+              <div className="actual-album-container">
                 {albumsOthers}
               </div>
             </Tab>
