@@ -1,7 +1,9 @@
 # Photodrop
 _**Collect the Good Times**_
 
-[**Photodrop**](https://photodrop.herokuapp.com/) is a live photo feed web application where users can post photos and messages to a live presentation. It is developed with [React](https://facebook.github.io/react/) (front-end) and [Firebase](https://firebase.google.com/) (back-end). It was originally planned for as a continuation from [**theRyanJoleneProject**](https://github.com/darrelltzj/theRyanJoleneProject) so that wedding guests can share their well-wishes and moments on screen, but it can be used for other events and situations as well. [**Photodrop**](https://photodrop.herokuapp.com/) is currently a work in progress with details for improvement below.
+[**Photodrop**](https://photodrop.herokuapp.com/) is a live photo feed web application where users can post photos and messages to a live presentation. It is developed with [React](https://facebook.github.io/react/) (front-end) and [Firebase](https://firebase.google.com/) (back-end). It was originally planned for as a continuation from [**theRyanJoleneProject**](https://github.com/darrelltzj/theRyanJoleneProject) so that wedding guests can share their well-wishes and moments on screen, but it can be used for other events and situations as well.
+
+[**Photodrop**](https://photodrop.herokuapp.com/) is currently a work in progress with points for improvement below.
 
 ## Targeted features
 :white_check_mark: Users can create and / or participate in albums.
@@ -29,11 +31,13 @@ A [Firebase](https://firebase.google.com/) project is required as the backend. T
 [Try it out](https://photodrop.herokuapp.com/)
 
 ### Images
-Uploading images
+**Uploading images**
+
 User uploads image --> React reads dataUrl --> fix-orientation --> React uploads image to Firebase
 
-Reading images
-React reads imgage URL from firebase
+**Reading images**
+
+React reads image URL from Firebase
 
 ## Future Development
 

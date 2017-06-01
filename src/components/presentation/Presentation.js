@@ -1,5 +1,5 @@
 import React from 'react'
-import ReactDOM from 'react-dom'
+// import ReactDOM from 'react-dom'
 
 import * as firebase from 'firebase'
 
@@ -7,7 +7,7 @@ import {
   Image
  } from 'react-bootstrap'
 
-import ReactAudioPlayer from 'react-audio-player'
+// import ReactAudioPlayer from 'react-audio-player'
 import ReactPlayer from 'react-player'
 
 class Presentation extends React.Component {

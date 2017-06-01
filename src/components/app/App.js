@@ -1,5 +1,4 @@
 import React from 'react'
-import './App.css'
 
 import {
   BrowserRouter as Router,
@@ -17,19 +16,12 @@ import Albums from '../albums/Albums'
 import Pictures from '../pictures/Pictures'
 import Presentation from '../presentation/Presentation'
 
-// NOT NEEEDED
-// import AlbumsNew from '../albumsNew/AlbumsNew'
-// import AlbumEdit from '../albumEdit/AlbumEdit'
-// import AlbumSettings from '../albumSettings/AlbumSettings'
-// import PicturesNew from '../picturesNew/PicturesNew'
-
 class App extends React.Component {
   constructor() {
     super()
     this.state = {
       albums: [],
-      pictures: [],
-      // currentUserUid: null
+      pictures: []
     }
   }
 
@@ -61,28 +53,6 @@ class App extends React.Component {
         pictures: pictures
       })
     })
-
-    // firebase.auth().onAuthStateChanged((user) => {
-    //   if (user) {
-    //     // console.log('firebaseAuth', user)
-    //     // console.log('this', this)
-    //
-    //     this.setState({
-    //       currentUserUid: user.uid
-    //     })
-    //
-    //     // console.log('setting state', this.state.currentUserUid)
-    //
-    //   } else {
-    //     // console.log('firebaseAuth', user)
-    //
-    //     this.setState({
-    //       currentUserUid: null
-    //     })
-    //
-    //     // console.log('setting state', this.state.currentUserUid)
-    //   }
-    // })
   }
 
   render () {
@@ -99,21 +69,11 @@ class App extends React.Component {
 
           <PublicRoute exact path={'/login'} component={Login}/>
 
-          {/* ===NOT USED=== */}
-          {/* <Route exact path={'/albums_new'} component={AlbumsNew}/>
-          <Route exact path={'/albums/:id/edit'} component={AlbumEdit}/>
-          <Route exact path={'/albums/:id/settings'} component={AlbumSettings}/> */}
-          {/* ===NOT USED=== */}
-
           <PrivateRoute exact path={'/account'} component={Account} />
 
           <PrivateRoute exact path={'/albums/:id'} component={Pictures} />
 
           <PrivateRoute exact path={'/albums/:id/presentation'} component={Presentation} />
-
-          {/* ===NOT USED=== */}
-          {/* <PropsRoute exact path={'/albums/:id/pictures_new'} component={PicturesNew} pictures={this.state.pictures}/> */}
-          {/* ===NOT USED=== */}
 
         </Switch>
       </Router>

@@ -4,9 +4,9 @@ import {
   Nav,
   NavDropdown,
   MenuItem,
-  NavItem,
-  Glyphicon,
-  Col
+  // NavItem,
+  Glyphicon
+  // Col
  } from 'react-bootstrap'
 
 import * as firebase from 'firebase'

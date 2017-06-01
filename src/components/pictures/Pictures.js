@@ -1,9 +1,9 @@
 import React from 'react'
-import ReactDOM from 'react-dom'
+// import ReactDOM from 'react-dom'
 
-import {
-  Link
-} from 'react-router-dom'
+// import {
+//   Link
+// } from 'react-router-dom'
 
 import * as firebase from 'firebase'
 
@@ -23,7 +23,7 @@ import {
   Thumbnail,
   Table,
   ProgressBar,
-  Popover
+  // Popover
  } from 'react-bootstrap'
 
 import Masonry from 'react-masonry-component'
@@ -1156,7 +1156,7 @@ class Pictures extends React.Component {
                       <Form horizontal onSubmit={(e) => this.uploadAudio(e)}>
                         <FormGroup bsSize="large">
                           <Col sm={12}>
-                            <FormControl type='text' id={`audioTitle-${this.props.match.params.id}`} placeholder= 'Title' required/>
+                            <FormControl type='text' id={`audioTitle-${this.props.match.params.id}`} placeholder='Title' required/>
                           </Col>
                         </FormGroup>
                         <FormGroup bsSize="large">
