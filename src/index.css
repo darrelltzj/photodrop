@@ -5,6 +5,19 @@ body {
   /*font-family: 'Montserrat', sans-serif;*/
 }
 
+.auth-signup {
+  margin-top: 40%;
+}
+
+.auth {
+  margin-top: 45%;
+}
+
+.intro-image {
+  margin-top: 35%;
+  min-width: 100%;
+}
+
 .nav-parent {
   display: flex;
   align-items:center;
@@ -337,6 +350,15 @@ img {
     font-weight: normal;
     padding-top: 0%;
     padding-bottom: 0%;
+  }
+  .auth-signup {
+    margin-top: 0%;
+  }
+  .auth {
+    margin-top: 0%;
+  }
+  .intro-image {
+    display: none;
   }
 }
 

@@ -13,7 +13,8 @@ import {
   FormControl,
   ControlLabel,
   Button,
-  PageHeader
+  PageHeader,
+  Image
  } from 'react-bootstrap'
 
 // import Navbar from '../navbar/Navbar'
@@ -40,7 +41,13 @@ class Login extends React.Component {
   render() {
     return (
       <div>
-        <Col sm={6}>
+
+        <Col smOffset={1} sm={5}>
+          <Image src="http://i.imgur.com/PnyCMDs.gif" rounded className='intro-image'/>
+        </Col>
+
+        <Col sm={5}>
+          <div className='auth'>
           <PageHeader>
             <strong>Photodrop</strong>
             {' '}
@@ -83,6 +90,7 @@ class Login extends React.Component {
               Sign up here.
             </Link>
           </Col>
+        </div>
         </Col>
 
       </div>
