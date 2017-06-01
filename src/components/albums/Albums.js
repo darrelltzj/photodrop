@@ -278,7 +278,7 @@ class Albums extends React.Component {
                   <Image src={pictureList[0].url} responsive className="album-image" onMouseOver={(e) => this.onImageHover(e, album.id)} onMouseOut={(e) => this.onImageOver(e, album.id)} onTouchStart={(e) => this.onImageHover(e, album.id)} onTouchEnd={(e) => this.onImageOver(e, album.id)}/>
                 </Link>
 
-                <div className={["album-live-comment-container", `hover-${album.id}`].join(' ')}>
+                <div className={["album-live-comment-container", `hover-${album.id}`].join(' ')} onMouseOver={(e) => this.onImageHover(e, album.id)} onMouseOut={(e) => this.onImageOver(e, album.id)} onTouchStart={(e) => this.onImageHover(e, album.id)} onTouchEnd={(e) => this.onImageOver(e, album.id)}>
                   <MessagesDisplay messages={messageList} albumId={album.id}/>
                 </div>
               </div>
@@ -312,13 +312,70 @@ class Albums extends React.Component {
           return true
         }
       }).map((album,index) => {
+        let albumId = Object.keys(this.state.messages).filter((albumId, index) => {
+          if (albumId == album.id) {
+              return true
+            }
+        })[0]
+
+        let messageList = []
+        for (var key in this.state.messages[albumId]) {
+          // messageList.push(this.state.messages[albumId][key])
+          messageList[0] = this.state.messages[albumId][key]
+        }
+
+        let pictureList = []
+        if (this.state.pictures[album.id]) {
+          for (var key in this.state.pictures[album.id]) {
+            pictureList.push(this.state.pictures[album.id][key])
+          }
+        } else {
+          pictureList.push({id:'default', lastUpdate:'default', uid:'default', url:'http://i.imgur.com/UBshxxy.png'})
+        }
+        pictureList.sort((a, b) => {
+          return a.index - b.index
+        })
+
         return (
           <div key={album.id}>
-            <Link to={`/albums/${album.id}`}>
-              <PageHeader>
-                <small>{album.title}</small>
-              </PageHeader>
-            </Link>
+
+            <div className="album-content-container">
+              <div className="album-image-container">
+
+                <h2 className={["album-title", `hover-${album.id}`].join(' ')}>
+                  {album.title}
+                </h2>
+
+                {firebase.auth().currentUser.uid != album.owner &&<Button type="submit" bsStyle="link" onClick={(e) => this.offRequest(e, album)}  className={['album-request', `hover-${album.id}`].join(' ')} onMouseOver={(e) => this.onImageHover(e, album.id)} onMouseOut={(e) => this.onImageOver(e, album.id)} onTouchStart={(e) => this.onImageHover(e, album.id)} onTouchEnd={(e) => this.onImageOver(e, album.id)}>
+                  Unfollow
+                </Button>}
+
+                <Link to={`/albums/${album.id}`}>
+                  <Image src={pictureList[0].url} responsive className="album-image" onMouseOver={(e) => this.onImageHover(e, album.id)} onMouseOut={(e) => this.onImageOver(e, album.id)} onTouchStart={(e) => this.onImageHover(e, album.id)} onTouchEnd={(e) => this.onImageOver(e, album.id)}/>
+                </Link>
+
+                <div className={["album-live-comment-container", `hover-${album.id}`].join(' ')} onMouseOver={(e) => this.onImageHover(e, album.id)} onMouseOut={(e) => this.onImageOver(e, album.id)} onTouchStart={(e) => this.onImageHover(e, album.id)} onTouchEnd={(e) => this.onImageOver(e, album.id)}>
+                  <MessagesDisplay messages={messageList} albumId={album.id}/>
+                </div>
+              </div>
+
+              <div className="album-live-comment-form-container">
+                <Form className="album-live-comment-form" onSubmit={(e) => this.newMessage(e, album.id)}>
+                  <FormGroup>
+                    <Col sm={12}>
+                    <FormControl componentClass="textarea" placeholder="Drop a message..." id={`new-message-${album.id}`} />
+                    </Col>
+                  </FormGroup>
+                  <FormGroup>
+                    <Col sm={1}>
+                    <Button type="submit" bsStyle="primary">
+                      Submit
+                    </Button>
+                    </Col>
+                  </FormGroup>
+                </Form>
+              </div>
+            </div>
           </div>
         )
       })

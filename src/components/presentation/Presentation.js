@@ -23,7 +23,7 @@ class Presentation extends React.Component {
     this.images = []
     this.index = 0
 
-    this.messagesTimer = 3
+    this.messagesTimer = 5
     this.messages = null
 
     this.total = this.images.length
@@ -125,7 +125,7 @@ class Presentation extends React.Component {
 
   setMessages(e) {
     this.messages = document.querySelector(`#album-${this.props.match.params.id}-presentation`).querySelector('.presentation-message-container')
-    this.messagesTimer = 3
+    this.messagesTimer = 5
     this.messages.style.opacity = 1
     // console.log('UPDATING', this.messages);
   }

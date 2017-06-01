@@ -1094,14 +1094,24 @@ class Pictures extends React.Component {
                   <div className="settings-images">
                     <br></br><br></br>
                     <FormGroup bsSize="large">
-                      <Col componentClass={ControlLabel} sm={2}>
-                        Presentation Interval (pause pictures before updating)
+                      <Col componentClass={ControlLabel} sm={12}>
+                        Presentation Interval (pause picture before updating)
                       </Col>
-                      <Col sm={10}>
-                        <FormControl type='number' min='1' max='10' value={this.state.album.presentationInterval}onChange={(e) => this.changeInterval(e)}/>
+                      <br></br>
+                      <Col sm={12}>
+                        <FormControl componentClass="select" value={this.state.album.presentationInterval}onChange={(e) => this.changeInterval(e)}>
+                          <option value="2">2</option>
+                          <option value="3">3</option>
+                          <option value="4">4</option>
+                          <option value="5">5</option>
+                          <option value="6">6</option>
+                          <option value="7">7</option>
+                          <option value="8">8</option>
+                        </FormControl>
                       </Col>
                     </FormGroup>
-                    <Col smOffset={10} sm={1}>
+                    <br></br>
+                    <Col smOffset={0} sm={2}>
                       <Button bsStyle="primary" onClick={(e) => this.playPictures(e)}>
                         {pictureSettings}
                       </Button>
