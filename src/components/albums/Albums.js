@@ -120,6 +120,7 @@ class Albums extends React.Component {
       participants: newAlbumParticipants,
       requests: {'none': true},
       live: false,
+      presentationInterval: 4,
       pictures: {},
       // nextIndex: 0,
       current: {},

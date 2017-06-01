@@ -30,6 +30,7 @@ class Presentation extends React.Component {
 		this.timer = null
     this.messagesEnd = null
     this.playPictures = false
+    this.interval = 4000
     // this.action()
   }
 
@@ -78,6 +79,7 @@ class Presentation extends React.Component {
         pictures: pictures
       })
     })
+
     firebase.database().ref('/messages/' + this.props.match.params.id).on('value', snapshot => {
       let messages = []
       snapshot.forEach(message => {
@@ -87,10 +89,12 @@ class Presentation extends React.Component {
         messages: messages
       })
     })
+
     firebase.database().ref('/albums/' + this.props.match.params.id + '/live').on('value', snapshot => {
       this.playPictures = snapshot.val()
       // console.log(this.playPictures)
     })
+
     firebase.database().ref('/audio/' + this.props.match.params.id).on('value', snapshot => {
       let audio = []
       snapshot.forEach(aud => {
@@ -103,6 +107,9 @@ class Presentation extends React.Component {
   }
 
   componentDidUpdate () {
+    firebase.database().ref('/albums/' + this.props.match.params.id + '/presentationInterval').on('value', snapshot => {
+      this.interval = snapshot.val() * 1000 || 4000
+    })
     // console.log('updating')
     // Set new image order
     this.setImages()
@@ -150,7 +157,7 @@ class Presentation extends React.Component {
         // console.log('INDEX', self.index)
         // console.log('MessageTimer', self.messagesTimer)
         self.slideTo(self.index)
-      }, 4000)
+      }, self.interval || 4000)
     }
   }
 

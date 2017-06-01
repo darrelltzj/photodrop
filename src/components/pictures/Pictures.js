@@ -708,6 +708,13 @@ class Pictures extends React.Component {
     })
   }
 
+  changeInterval(e) {
+    e.preventDefault()
+    let updates = {}
+    updates['/albums/' + this.props.match.params.id + '/presentationInterval/'] = e.target.value
+    firebase.database().ref().update(updates)
+  }
+
   render() {
     const masonryOptions = {
         transitionDuration: 0.8
@@ -1082,14 +1089,23 @@ class Pictures extends React.Component {
               Open Presentation Screen
             </Button>
             <div>
-
               <Tabs defaultActiveKey={'pictures'}>
                 <Tab eventKey={'pictures'} title="Pictures">
                   <div className="settings-images">
                     <br></br><br></br>
-                    <Button bsStyle="primary" onClick={(e) => this.playPictures(e)}>
-                      {pictureSettings}
-                    </Button>
+                    <FormGroup bsSize="large">
+                      <Col componentClass={ControlLabel} sm={2}>
+                        Presentation Interval (pause pictures before updating)
+                      </Col>
+                      <Col sm={10}>
+                        <FormControl type='number' min='1' max='10' value={this.state.album.presentationInterval}onChange={(e) => this.changeInterval(e)}/>
+                      </Col>
+                    </FormGroup>
+                    <Col smOffset={10} sm={1}>
+                      <Button bsStyle="primary" onClick={(e) => this.playPictures(e)}>
+                        {pictureSettings}
+                      </Button>
+                    </Col>
                     {presentationImages}
                   </div>
                 </Tab>
