@@ -273,7 +273,7 @@ class Albums extends React.Component {
               <div className="album-image-container">
 
                 <Link to={`/albums/${album.id}`}>
-                  <h2 className={["album-title", `hover-${album.id}`].join(' ')}>
+                  <h2 className={["album-title", `hover-${album.id}`].join(' ')} onMouseOver={(e) => this.onImageHover(e, album.id)} onMouseOut={(e) => this.onImageOver(e, album.id)} onTouchStart={(e) => this.onImageHover(e, album.id)} onTouchEnd={(e) => this.onImageOver(e, album.id)}>
                     {album.title}
                   </h2>
                 </Link>
@@ -286,9 +286,11 @@ class Albums extends React.Component {
                   <Image src={pictureList[0].url} responsive className="album-image" onMouseOver={(e) => this.onImageHover(e, album.id)} onMouseOut={(e) => this.onImageOver(e, album.id)} onTouchStart={(e) => this.onImageHover(e, album.id)} onTouchEnd={(e) => this.onImageOver(e, album.id)}/>
                 </Link>
 
-                <div className={["album-live-comment-container", `hover-${album.id}`].join(' ')} onMouseOver={(e) => this.onImageHover(e, album.id)} onMouseOut={(e) => this.onImageOver(e, album.id)} onTouchStart={(e) => this.onImageHover(e, album.id)} onTouchEnd={(e) => this.onImageOver(e, album.id)}>
-                  <MessagesDisplay messages={messageList} albumId={album.id}/>
-                </div>
+                <Link to={`/albums/${album.id}`}>
+                  <div className={["album-live-comment-container", `hover-${album.id}`].join(' ')} onMouseOver={(e) => this.onImageHover(e, album.id)} onMouseOut={(e) => this.onImageOver(e, album.id)} onTouchStart={(e) => this.onImageHover(e, album.id)} onTouchEnd={(e) => this.onImageOver(e, album.id)}>
+                    <MessagesDisplay messages={messageList} albumId={album.id}/>
+                  </div>
+                </Link>
               </div>
 
               <div className="album-live-comment-form-container">
