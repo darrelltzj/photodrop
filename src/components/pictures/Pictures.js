@@ -336,6 +336,7 @@ class Pictures extends React.Component {
 
     firebase.database().ref('/albums/' + this.props.match.params.id).set(updatedAlbum).then((data) => {
       console.log('Update Successful')
+      window.location = '/albums/' + this.props.match.params.id
     }).catch((err) => {
       alert(err)
     })
@@ -1103,9 +1104,11 @@ class Pictures extends React.Component {
             <Modal.Title>Picture Settings</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <Button bsStyle="link" onClick={(e) => this.presentationRedirect(e)}>
-              Open Presentation Screen
-            </Button>
+            <Col sm={5} md={3}>
+              <Button bsStyle="primary" onClick={(e) => this.presentationRedirect(e)}>
+                Open Presentation Screen
+              </Button>
+            </Col>
             <div>
               <Tabs defaultActiveKey={'pictures'}>
                 <Tab eventKey={'pictures'} title="Pictures">
@@ -1148,7 +1151,6 @@ class Pictures extends React.Component {
                         </span>
                         <ProgressBar active now={this.state.uploadProgress} label={`${this.state.uploadProgress}%`} />
                       </div>}
-
                       <Form horizontal onSubmit={(e) => this.uploadAudio(e)}>
                         <FormGroup bsSize="large">
                           <Col sm={12}>
@@ -1164,6 +1166,7 @@ class Pictures extends React.Component {
                           Upload
                         </Button>
                       </Form>
+                      <br></br><br></br>
                   </div>
 
                   <h1 className="audio-header">Audio List</h1>

@@ -118,6 +118,17 @@ class Presentation extends React.Component {
     this.stopStart()
   }
 
+  // launchFullScreen (element) {
+  //   console.log('FULL')
+  //   if (element.requestFullScreen) {
+  //     element.requestFullScreen()
+  //   } else if (element.mozRequestFullScreen) {
+  //     element.mozRequestFullScreen()
+  //   } else if (element.webkitRequestFullScreen) {
+  //     element.webkitRequestFullScreen()
+  //   }
+  // }
+
   setImages(e) {
     // console.log('updatingAgain')
     this.images = document.querySelector(`#album-${this.props.match.params.id}-presentation`).querySelectorAll('.presentation-image')
@@ -173,7 +184,15 @@ class Presentation extends React.Component {
     }
   }
 
+  fullScreen () {
+    var el = document.documentElement
+    var rfs = el.requestFullScreen || el.webkitRequestFullScreen || el.mozRequestFullScreen
+    rfs.call(el)
+  }
+
   render() {
+    // this.launchFullScreen(document.documentElement)
+
     let pictureList = this.state.pictures.map((picture, index) => {
       return (
         <Image src={picture.url} key={picture.id} className="presentation-image" id={picture.index} />
@@ -210,7 +229,7 @@ class Presentation extends React.Component {
 
     // console.log('playing')
     return (
-      <div className="presentation-container" id={`album-${this.props.match.params.id}-presentation`} onLoad={(e) => this.setImages(e)}>
+      <div className="presentation-container" id={`album-${this.props.match.params.id}-presentation`} onLoad={(e) => this.setImages(e)} onClick={(e) => this.fullScreen(e)}>
         {/* <div className="presentation-images-container"> */}
           {pictureList}
           <div className="presentation-message-container">
