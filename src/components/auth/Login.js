@@ -44,7 +44,7 @@ class Login extends React.Component {
           <PageHeader>
             <strong>Photodrop</strong>
             {' '}
-            <small>Photo Sharing Presentations</small>
+            <small>Collect the Good Times</small>
           </PageHeader>
 
           <Form horizontal onSubmit={(e) => this.login(e)}>
