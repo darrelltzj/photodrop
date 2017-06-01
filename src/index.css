@@ -137,8 +137,8 @@ img {
   left: 0%;
   right: 0%;
   margin: auto;
-  padding-top: 30px;
-  padding-bottom: 30px;
+  padding-top: 6%;
+  padding-bottom: 6%;
 }
 
 .picture-cover-text {
@@ -295,6 +295,12 @@ img {
   }
   .album-image-container{
     height: 260px;
+  }
+  .picture-image-owner-container {
+    font-size: 12px;
+    font-weight: normal;
+    padding-top: 0%;
+    padding-bottom: 0%;
   }
 }
 
