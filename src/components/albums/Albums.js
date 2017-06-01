@@ -225,6 +225,12 @@ class Albums extends React.Component {
     })
   }
 
+  hidePopover (e) {
+    e.preventDefault()
+    let elementToHide = document.querySelector(`.popover`)
+    elementToHide.style.display = 'none'
+  }
+
   render () {
     let albumsParticipating = []
     if (this.state.albums.length > 0) {
@@ -446,7 +452,7 @@ class Albums extends React.Component {
             placement="top"
             positionLeft={320}
             positionTop={84}
-            title="New here?">
+            title="New here?" className="popover" onClick={(e) => this.hidePopover(e)}>
               Start participating in albums from the  <strong>Others</strong> tab OR simply <strong>Create Album</strong>.
           </Popover>}
 
