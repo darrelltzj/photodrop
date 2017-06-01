@@ -272,9 +272,11 @@ class Albums extends React.Component {
             <div className="album-content-container">
               <div className="album-image-container">
 
-                <h2 className={["album-title", `hover-${album.id}`].join(' ')}>
-                  {album.title}
-                </h2>
+                <Link to={`/albums/${album.id}`}>
+                  <h2 className={["album-title", `hover-${album.id}`].join(' ')}>
+                    {album.title}
+                  </h2>
+                </Link>
 
                 {firebase.auth().currentUser.uid != album.owner &&<Button type="submit" bsStyle="link" onClick={(e) => this.offRequest(e, album)}  className={['album-request', `hover-${album.id}`].join(' ')} onMouseOver={(e) => this.onImageHover(e, album.id)} onMouseOut={(e) => this.onImageOver(e, album.id)} onTouchStart={(e) => this.onImageHover(e, album.id)} onTouchEnd={(e) => this.onImageOver(e, album.id)}>
                   Unfollow
@@ -348,9 +350,11 @@ class Albums extends React.Component {
             <div className="album-content-container">
               <div className="album-image-container">
 
-                <h2 className={["album-title", `hover-${album.id}`].join(' ')}>
-                  {album.title}
-                </h2>
+                <Link to={`/albums/${album.id}`}>
+                  <h2 className={["album-title", `hover-${album.id}`].join(' ')}>
+                    {album.title}
+                  </h2>
+                </Link>
 
                 {firebase.auth().currentUser.uid != album.owner &&<Button type="submit" bsStyle="link" onClick={(e) => this.offRequest(e, album)}  className={['album-request', `hover-${album.id}`].join(' ')} onMouseOver={(e) => this.onImageHover(e, album.id)} onMouseOut={(e) => this.onImageOver(e, album.id)} onTouchStart={(e) => this.onImageHover(e, album.id)} onTouchEnd={(e) => this.onImageOver(e, album.id)}>
                   Unfollow
@@ -417,7 +421,7 @@ class Albums extends React.Component {
                   Participate
                 </Button>
 
-                <Image src={pictureList[0].url} responsive className="album-image" onMouseOver={(e) => this.onImageHover(e, album.id)} onMouseOut={(e) => this.onImageOver(e, album.id)}/>
+                <Image src={pictureList[0].url} responsive className="album-image" onMouseOver={(e) => this.onImageHover(e, album.id)} onMouseOut={(e) => this.onImageOver(e, album.id)} onClick={(e) => this.newRequest(e, album)}/>
 
                 <div className={["album-live-comment-container", `hover-${album.id}`].join(' ')}>
                   {album.description}
