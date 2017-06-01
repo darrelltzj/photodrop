@@ -13,6 +13,7 @@ body {
 
 .nav-menu {
   margin-left: 16.7%;
+  font-size: 120%;
 }
 
 .brand-title {
@@ -21,7 +22,11 @@ body {
   width: 60%;
   margin-left: 20%;
   margin-right: 20%;
+  font-size: 200%;
+}
 
+.brand-logo {
+  max-width: 4%;
 }
 
 .albums-display {
@@ -293,6 +298,13 @@ img {
 @media only screen and (max-width: 768px) {
   .nav-menu {
     margin-left: auto;
+    font-size: 12px;
+  }
+  .brand-title {
+    font-size: 22px;
+  }
+  .brand-logo{
+    display: none;
   }
   .albums-display {
     margin-left: auto;

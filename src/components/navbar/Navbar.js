@@ -45,6 +45,7 @@ class Navbar extends React.Component {
           </NavDropdown>
 
           <div className="brand-title">
+            <img src={require('../../../public/favicon.ico')} className="brand-logo"></img>{' '}
             Photodrop
           </div>
 
