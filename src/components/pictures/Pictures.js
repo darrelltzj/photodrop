@@ -708,6 +708,18 @@ class Pictures extends React.Component {
     })
   }
 
+  onTitleHover (e, albumId) {
+    e.preventDefault()
+    let elementsToHide = document.querySelector(`#description-${albumId}`)
+    elementsToHide.style.display = 'unset'
+  }
+
+  onTitleOver (e, albumId) {
+    e.preventDefault()
+    let elementsToHide = document.querySelector(`#description-${albumId}`)
+    elementsToHide.style.display = 'none'
+  }
+
   changeInterval(e) {
     e.preventDefault()
     let updates = {}
@@ -902,10 +914,16 @@ class Pictures extends React.Component {
         <Navbar />
         <Col sm={8} className="albums-display">
           <div>
-            <PageHeader>
+            <PageHeader id={`title-${this.state.album.id}`}
+              onMouseOver={(e) => this.onTitleHover(e, this.state.album.id)}
+              onMouseOut={(e) => this.onTitleOver(e, this.state.album.id)}
+              onTouchStart={(e) => this.onTitleHover(e, this.state.album.id)}
+              onTouchEnd={(e) => this.onTitleOver(e, this.state.album.id)}>
               <strong>{this.state.album.title}</strong>{' '}
             </PageHeader>
-            <p>{this.state.album.description}</p>
+            <p className='album-description' id={`description-${this.state.album.id}`}>
+              {this.state.album.description}
+            </p>
           </div>
 
           <div>

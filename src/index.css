@@ -155,6 +155,10 @@ img {
   color: white;
 }
 
+.album-description {
+  display: none;
+}
+
 .overall-message-container {
   max-height: 78vh;
   overflow: scroll;
@@ -300,10 +304,7 @@ img {
     margin-left: auto;
     font-size: 12px;
   }
-  .brand-title {
-    font-size: 22px;
-  }
-  .brand-logo{
+  .brand-title, .brand-logo {
     display: none;
   }
   .albums-display {
