@@ -1,9 +1,9 @@
 # Photodrop
 _**Collect the Good Times**_
 
-[**Photodrop**](https://photodrop.herokuapp.com/) is a live photo feed web application where users can post photos and messages to a live presentation. It is developed with [React](https://facebook.github.io/react/) (front-end) and [Firebase](https://firebase.google.com/) (back-end). It was originally planned for as a continuation from [**theRyanJoleneProject**](https://github.com/darrelltzj/theRyanJoleneProject) so that wedding guests can share their well-wishes and moments on screen, but it can be used for other events and situations as well.
+[**Photodrop**](https://photodrop.herokuapp.com/) is a live photo feed web application where users can post photos and messages to a live photo and audio presentation. It is developed with [React](https://facebook.github.io/react/) (front-end) and [Firebase](https://firebase.google.com/) (back-end). It was originally planned for as a continuation from [**theRyanJoleneProject**](https://github.com/darrelltzj/theRyanJoleneProject) so that wedding guests can share their well-wishes and moments on screen, but it might be possible to use it for other events and situations as well.
 
-[**Photodrop**](https://photodrop.herokuapp.com/) is currently a work in progress with points for improvement below.
+[**Photodrop**](https://photodrop.herokuapp.com/) started as my [forth project](https://jeremiahalex.gitbooks.io/wdi-sg/content/11-projects/project-4/readme.html) at General Assembly's WDI Course and was also my personal experiment on [React](https://facebook.github.io/react/) and [Firebase](https://firebase.google.com/). It is currently a work in progress with some points for improvement stated below.
 
 ## Targeted features
 :white_check_mark: Users can create and / or participate in albums.
@@ -14,7 +14,7 @@ _**Collect the Good Times**_
 
 ## Installing this project
 
-This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app) and deployed with [Buildpack](https://github.com/mars/create-react-app-buildpack).
+This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app) and deployed with [Buildpack](https://github.com/mars/create-react-app-buildpack). It is also design with [React Bootstrap](https://react-bootstrap.github.io/). See the package.json file for full dependencies.
 
 ### Installing
 
@@ -53,12 +53,15 @@ Further research has to be conducted on this. An alternative would be to try to 
 This is so that users can both upload from and to their social media. This application could act as an extended feature for social media sites.
 
 ### Option to privatise / restrict guest rights
-Currently, any guest can upload a photo or a message, some users are uncomfortable with this. A review section may be needed for users to approve their guests' posts before allowing the images and messages into the feed.
+Currently, any participant can upload a photo or a message, some users are uncomfortable with this. A review section may be needed for users to approve their participants' posts before allowing the images and messages into the feed.
 
-## Authors
+## Author(s)
 - [Darrell Teo](https://github.com/darrelltzj)
 
 ## Credits
+
+### References
+- [Automatic Slideshow by Gabriele Romanato](https://codepen.io/gabrieleromanato/pen/dImly)
 
 ### Coding assistance
 - [Prima Aulia](https://github.com/primaulia)
@@ -66,8 +69,8 @@ Currently, any guest can upload a photo or a message, some users are uncomfortab
 - [Sahaya Sharona Valluvan](https://github.com/sharona1610)
 
 ### Fixing Photo Orientation
-- [Jonathan Ng](https://github.com/noll-fyra)
-- [Jerel Lim](https://github.com/jerel-lim)
+- [Jonathan Ng](https://github.com/noll-fyra) from [Via Priori](https://github.com/noll-fyra/viapriori2)
+- [Jerel Lim](https://github.com/jerel-lim) from [Via Priori](https://github.com/noll-fyra/viapriori2)
 
 ### Resources
-* polaroid by Raz Cohen from the Noun Project
+- polaroid by Raz Cohen from the Noun Project

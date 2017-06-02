@@ -107,7 +107,9 @@ class Signup extends React.Component {
       <div>
 
         <Col smOffset={1} sm={5}>
-          <Image src="http://i.imgur.com/PnyCMDs.gif" rounded className='intro-image'/>
+          <a href="https://github.com/darrelltzj/photodrop">
+            <Image src="http://i.imgur.com/PnyCMDs.gif" rounded className='intro-image'/>
+          </a>
         </Col>
 
         <Col sm={5}>
