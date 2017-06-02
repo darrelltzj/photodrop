@@ -273,7 +273,8 @@ class Albums extends React.Component {
               <div className="album-image-container">
 
                 <Link to={`/albums/${album.id}`}>
-                  <h2 className={["album-title", `hover-${album.id}`].join(' ')} onMouseOver={(e) => this.onImageHover(e, album.id)} onMouseOut={(e) => this.onImageOver(e, album.id)} onTouchStart={(e) => this.onImageHover(e, album.id)}>
+                  <h2 className={["album-title", `hover-${album.id}`].join(' ')} onMouseOver={(e) => this.onImageHover(e, album.id)} onMouseOut={(e) => this.onImageOver(e, album.id)}>
+                    {/* onTouchStart={(e) => this.onImageHover(e, album.id)}> */}
                     {/* onTouchEnd={(e) => this.onImageOver(e, album.id)}> */}
                     {album.title}
                   </h2>
@@ -357,7 +358,8 @@ class Albums extends React.Component {
               <div className="album-image-container">
 
                 <Link to={`/albums/${album.id}`}>
-                  <h2 className={["album-title", `hover-${album.id}`].join(' ')} onMouseOver={(e) => this.onImageHover(e, album.id)} onMouseOut={(e) => this.onImageOver(e, album.id)} onTouchStart={(e) => this.onImageHover(e, album.id)}>
+                  <h2 className={["album-title", `hover-${album.id}`].join(' ')} onMouseOver={(e) => this.onImageHover(e, album.id)} onMouseOut={(e) => this.onImageOver(e, album.id)}>
+                    {/* onTouchStart={(e) => this.onImageHover(e, album.id)}> */}
                     {album.title}
                   </h2>
                 </Link>
