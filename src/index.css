@@ -316,6 +316,7 @@ img {
   .album-image-container{
     height: 260px;
   }
+
   .picture-image-owner-container {
     font-size: 12px;
     font-weight: normal;
@@ -330,5 +331,15 @@ img {
   }
   .intro-image {
     display: none;
+  }
+}
+
+@media only screen and (max-width: 414px) {
+  .picture-container {
+    max-width: 92%;
+    margin-top: 4%;
+    margin-bottom: 4%;
+    margin-left: 4%;
+    margin-right: 4%;
   }
 }

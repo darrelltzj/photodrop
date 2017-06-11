@@ -41,9 +41,6 @@ React reads image URL from Firebase
 
 ## Future Development
 
-### Refactor Refactor Refactor
-Yes. The code smells at the moment. This is my first project on [React](https://facebook.github.io/react/) and [Firebase](https://firebase.google.com/). The priority was to get the photos loaded and the slides running. The next priority would be to clean up the code.
-
 ### EXIF Orientation issue: iPhone Portrait Camera Capture
 [npm fix-orientation](https://www.npmjs.com/package/fix-orientation) was used to handle the EXIF meta data in the imgages. Images are correctly before uploading to [Firebase](https://firebase.google.com/). Currently, images through camera capture by iPhone are do not have their EXIF Orientation fixed before they are uploaded. This causes these portrait images to appear rotated 90 degrees on the web application.
 
