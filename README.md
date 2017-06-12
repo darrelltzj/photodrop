@@ -30,6 +30,19 @@ A [Firebase](https://firebase.google.com/) project is required as the backend. T
 
 [Try it out](https://photodrop.herokuapp.com/)
 
+### Current User access rights
+  |            | Organiser| Participant|
+  | ------------- |:-------------:|:-------------:|
+  | Upload Images| :white_check_mark:| :white_check_mark:|
+  | Delete Images by Self| :white_check_mark:| :white_check_mark:|
+  | Delete any Image in Album| :white_check_mark:| |
+  | Organise Images in Album| :white_check_mark:| |
+  | Post Messages| :white_check_mark:| :white_check_mark:|
+  | Delete Messages by Self| :white_check_mark:| :white_check_mark:|
+  | Delete any Message in Album| :white_check_mark:| |
+  | Upload Audio| :white_check_mark:| |
+  | Play Live Presentation| :white_check_mark:| |
+
 ### Images
 **Image Upload Process**
 
@@ -47,7 +60,7 @@ React reads image URL from Firebase storage
 Further research has to be conducted on this. A guess would be that iPhone hides its image EXIF data during camera capture. An alternative would be to try to upload images from firebase onto a canvas, then correct fix the images' orientations from their dataUrl.
 
 ### Facebook / Instragram integration
-This is to allow users to be able to both upload from and to their social media sites. This application could act as an extended feature for social media sites. For example, [Photodrop](https://photodrop.herokuapp.com/) can be re-configured to read [Instragram](https://www.instagram.com) #tags instead, thus reducing the need to upload images.
+Social Medial integration would allow users to be able to both upload from and to their social media sites. This application could act as an extended feature for social media sites. For example, [Photodrop](https://photodrop.herokuapp.com/) can be re-configured to read [Instragram](https://www.instagram.com) #tags instead, thus reducing the need to upload images.
 
 ### Option to privatise / restrict guest rights
 Currently, any participant can upload a photo or a message that may or may not be appropriate. A review section may be needed for users to approve their participants' posts before allowing the images and messages into the feed. Alternatively, [Google Cloud Vision](https://cloud.google.com/vision/) can be used to filter off inappropriate images.
