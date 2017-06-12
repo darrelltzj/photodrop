@@ -3,7 +3,7 @@ _**Collect the Good Times**_
 
 [**Photodrop**](https://photodrop.herokuapp.com/) is a live photo feed web application where users can post photos and messages to a live photo and audio presentation. It is developed with [React](https://facebook.github.io/react/) (front-end) and [Firebase](https://firebase.google.com/) (back-end). It was originally planned for as a continuation to [**theRyanJoleneProject**](https://github.com/darrelltzj/theRyanJoleneProject) for wedding guests to share their well-wishes and photographs on screen, but it can be used for other events as well.
 
-[**Photodrop**](https://photodrop.herokuapp.com/) started as my [forth project](https://jeremiahalex.gitbooks.io/wdi-sg/content/11-projects/project-4/readme.html) at General Assembly's WDI Course. It was also my personal experiment on [React](https://facebook.github.io/react/) and [Firebase](https://firebase.google.com/). There is room for improvement in this project (see below).
+[**Photodrop**](https://photodrop.herokuapp.com/) started as my [forth project](https://jeremiahalex.gitbooks.io/wdi-sg/content/11-projects/project-4/readme.html) at General Assembly's WDI Course. It was also my personal experiment on [React](https://facebook.github.io/react/) and [Firebase](https://firebase.google.com/). There are points for improvement in this project (see below).
 
 ## Targeted features
 :white_check_mark: Users can create and / or participate in albums.
