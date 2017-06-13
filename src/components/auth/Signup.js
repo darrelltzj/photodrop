@@ -17,7 +17,7 @@ import {
   Image
  } from 'react-bootstrap'
 
-// import Navbar from '../navbar/Navbar'
+ import './auth.css'
 
 class Signup extends React.Component {
   constructor() {

@@ -5,41 +5,8 @@ body {
   /*font-family: 'Montserrat', sans-serif;*/
 }
 
-.auth-signup {
-  margin-top: 32%;
-}
-
-.auth {
-  margin-top: 38%;
-}
-
-.intro-image {
-  margin-top: 30%;
-  min-width: 100%;
-}
-
-.nav-parent {
-  display: flex;
-  align-items:center;
-  height: 60px;
-}
-
-.nav-menu {
-  margin-left: 16.7%;
-  font-size: 120%;
-}
-
-.brand-title {
-  position: absolute;
-  text-align: center;
-  width: 60%;
-  margin-left: 20%;
-  margin-right: 20%;
-  font-size: 200%;
-}
-
-.brand-logo {
-  max-width: 4%;
+img {
+  image-orientation: from-image;
 }
 
 .album-tab {
@@ -108,10 +75,6 @@ body {
   width: 100%;
   height: auto;
   border-radius:20px;
-}
-
-img {
-  image-orientation: from-image;
 }
 
 .album-live-comment-container, .album-request, .album-title {
@@ -299,20 +262,15 @@ img {
 }
 
 @media only screen and (max-width: 768px) {
-  .nav-menu {
-    margin-left: auto;
-    font-size: 12px;
-  }
-  .brand-title, .brand-logo {
-    display: none;
-  }
   .albums-display {
     margin-left: auto;
     margin-right: auto;
   }
+
   .album-content-container {
     height: 380px;
   }
+
   .album-image-container{
     height: 260px;
   }
@@ -322,15 +280,6 @@ img {
     font-weight: normal;
     padding-top: 0%;
     padding-bottom: 0%;
-  }
-  .auth-signup {
-    margin-top: 0%;
-  }
-  .auth {
-    margin-top: 0%;
-  }
-  .intro-image {
-    display: none;
   }
 }
 

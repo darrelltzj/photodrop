@@ -1,0 +1,33 @@
+.nav-parent {
+  display: flex;
+  align-items:center;
+  height: 60px;
+}
+
+.nav-menu {
+  margin-left: 16.7%;
+  font-size: 120%;
+}
+
+.brand-title {
+  position: absolute;
+  text-align: center;
+  width: 60%;
+  margin-left: 20%;
+  margin-right: 20%;
+  font-size: 200%;
+}
+
+.brand-logo {
+  max-width: 4%;
+}
+
+@media only screen and (max-width: 768px) {
+  .nav-menu {
+    margin-left: auto;
+    font-size: 12px;
+  }
+  .brand-title, .brand-logo {
+    display: none;
+  }
+}

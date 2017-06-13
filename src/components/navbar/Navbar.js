@@ -11,6 +11,8 @@ import {
 
 import * as firebase from 'firebase'
 
+import './navbar.css'
+
 class Navbar extends React.Component {
   handleSelect(eventKey) {
     event.preventDefault()
